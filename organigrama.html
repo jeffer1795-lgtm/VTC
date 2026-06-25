@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes" />
+    <title>Organigrama Institucional | VTC</title>
+    <meta name="description" content="Conoce la estructura jerárquica y las áreas de la Veeduría Técnica Ciudadana." />
+    <link rel="icon" href="img/logo.png" type="image/png" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700;900&family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet" />
+    <style>
+        * { margin:0; padding:0; box-sizing:border-box; }
+        :root {
+            --black:#080808; --black2:#111; --gray:#a0a0a0; --white:#fff;
+            --yellow:#FCD116; --blue:#003893; --red:#CE1126;
+            --font-display:'Space Grotesk',sans-serif; --font-body:'Inter',sans-serif;
+        }
+        html { scroll-behavior:smooth; -webkit-text-size-adjust:100%; }
+        body { font-family:var(--font-body); background:var(--black); color:var(--white); padding:80px 8% 40px; -webkit-font-smoothing:antialiased; padding-bottom:80px; }
+        h1 { font-family:var(--font-display); font-size:4rem; font-weight:900; letter-spacing:-0.02em; margin-bottom:5px; border-left:6px solid var(--yellow); padding-left:25px; }
+        .subtitle { font-family:var(--font-display); font-size:1.4rem; font-weight:500; color:var(--yellow); margin-bottom:40px; border-left:6px solid var(--yellow); padding-left:25px; }
+        h2 { font-family:var(--font-display); font-size:2.2rem; font-weight:700; color:var(--yellow); margin-top:45px; margin-bottom:20px; border-bottom:2px solid rgba(252,209,22,0.2); padding-bottom:8px; }
+        h3 { font-family:var(--font-display); font-size:1.5rem; font-weight:600; color:#fff; margin-top:30px; margin-bottom:5px; }
+        .cargo { font-size:1.1rem; color:var(--yellow); font-weight:500; margin-bottom:5px; }
+        .detalle { color:var(--gray); font-size:0.95rem; margin-bottom:8px; }
+        .responsabilidades { margin-top:8px; margin-bottom:20px; padding-left:25px; }
+        .responsabilidades li { color:#c0c0c0; margin-bottom:4px; }
+        .oficina { margin-top:25px; padding-left:15px; border-left:3px solid rgba(252,209,22,0.3); }
+        .oficina h4 { font-family:var(--font-display); font-size:1.2rem; font-weight:600; color:var(--yellow); margin-bottom:5px; }
+        .estructura-img { margin-top:30px; width:100%; max-width:900px; display:block; border-radius:8px; border:1px solid rgba(255,255,255,0.06); }
+        .back-link { display:inline-block; margin-top:50px; color:var(--yellow); text-decoration:none; font-weight:600; border-bottom:2px solid var(--yellow); padding-bottom:4px; transition:0.3s; }
+        .back-link:hover { color:#fff; border-color:#fff; }
+
+        /* ===== HEADER ===== */
+        .nav {
+            position:fixed; top:0; left:0; width:100%; display:flex; justify-content:space-between; align-items:center;
+            padding:12px 5%; z-index:1000; background:rgba(0,0,0,0.5);
+            -webkit-backdrop-filter:blur(16px); backdrop-filter:blur(16px);
+            border-bottom:1px solid rgba(255,255,255,0.04); transition:0.3s;
+        }
+        .logo { display:flex; align-items:center; gap:10px; text-decoration:none; flex-shrink:0; }
+        .logo img { height:1.64rem; width:auto; display:block; -webkit-user-select:none; user-select:none; }
+        .logo-text { font-family:var(--font-display); font-size:1.64rem; font-weight:900; letter-spacing:-2px; line-height:1; }
+        .logo-text .v { color:var(--yellow); } .logo-text .t { color:var(--blue); } .logo-text .c { color:var(--red); }
+
+        .nav ul { display:flex; gap:30px; list-style:none; }
+        .nav a { color:var(--white); text-decoration:none; font-size:0.85rem; font-weight:500; letter-spacing:0.5px; transition:0.3s; position:relative; }
+        .nav a::after { content:''; position:absolute; bottom:-4px; left:0; width:0; height:2px; background:var(--yellow); transition:0.3s; }
+        .nav a:hover::after { width:100%; }
+        .nav ul li { position:relative; }
+        .nav ul li .dropdown-menu { display:none; position:absolute; top:100%; left:0; background:rgba(0,0,0,0.95); -webkit-backdrop-filter:blur(16px); backdrop-filter:blur(16px); border:1px solid rgba(255,255,255,0.06); border-radius:8px; padding:10px 0; min-width:220px; z-index:1001; list-style:none; flex-direction:column; gap:0; }
+        .nav ul li .dropdown-menu.open { display:flex; }
+        .nav ul li .dropdown-menu a { display:block; padding:10px 20px; color:var(--white); text-decoration:none; font-size:0.85rem; font-weight:500; transition:0.3s; white-space:nowrap; }
+        .nav ul li .dropdown-menu a:hover { background:rgba(255,255,255,0.05); color:var(--yellow); }
+        .nav ul li .dropdown-menu a::after { display:none; }
+
+        .hamburger { display:none; flex-direction:column; gap:4px; cursor:pointer; background:none; border:none; padding:6px; z-index:1002; }
+        .hamburger span { display:block; width:26px; height:2.5px; background:var(--white); border-radius:3px; transition:0.3s; -webkit-transform-origin:center; transform-origin:center; }
+        .hamburger.active span:nth-child(1) { -webkit-transform:rotate(45deg) translate(6px,6px); transform:rotate(45deg) translate(6px,6px); }
+        .hamburger.active span:nth-child(2) { opacity:0; }
+        .hamburger.active span:nth-child(3) { -webkit-transform:rotate(-45deg) translate(6px,-6px); transform:rotate(-45deg) translate(6px,-6px); }
+
+        @media (max-width:700px) {
+            .hamburger { display:flex; }
+            .nav { padding:8px 5%; }
+            .logo img { height:1.33rem; }
+            .logo-text { font-size:1.33rem; }
+            .logo { gap:6px; }
+            .hamburger span { width:22px; height:2px; }
+            body { padding:80px 5% 30px; padding-bottom:80px; }
+            h1 { font-size:2.8rem; padding-left:15px; }
+            .subtitle { font-size:1.1rem; padding-left:15px; }
+            h2 { font-size:1.8rem; }
+            h3 { font-size:1.3rem; }
+
+            .nav ul {
+                position:fixed; top:0; right:-100%; width:80%; max-width:320px; height:100vh;
+                background:rgba(0,0,0,0.98); -webkit-backdrop-filter:blur(16px); backdrop-filter:blur(16px);
+                flex-direction:column; justify-content:center; align-items:center; gap:20px;
+                padding:40px 20px; transition:0.4s cubic-bezier(0.23,1,0.32,1);
+                border-left:1px solid rgba(255,255,255,0.04); overflow-y:auto; z-index:1001;
+            }
+            .nav ul.open { right:0; }
+            .nav ul li .dropdown-menu {
+                position:static;
+                background:rgba(255,255,255,0.03);
+                border:none;
+                border-radius:0;
+                padding:5px 0 5px 20px;
+                min-width:unset;
+                margin-top:5px;
+            }
+            .nav ul li .dropdown-menu a { white-space:normal; font-size:0.8rem; padding:8px 15px; }
+            .nav ul li .dropdown > a::after { display:none; }
+        }
+
+        /* ===== BOTÓN FLOTANTE ===== */
+        .floating { position:fixed; right:20px; bottom:100px; width:64px; height:64px; border-radius:50%; background:var(--yellow); border:none; cursor:pointer; z-index:999; display:flex; align-items:center; justify-content:center; box-shadow:0 8px 25px rgba(252,209,22,0.3); transition:0.3s; }
+        .floating:hover { transform:scale(1.08); box-shadow:0 12px 35px rgba(252,209,22,0.5); }
+        .floating svg { stroke:white; width:32px; height:32px; }
+        @media (max-width:700px) { .floating { right:16px; bottom:100px; width:56px; height:56px; } .floating svg { width:28px; height:28px; } }
+
+        /* ===== BOTTOM NAV ===== */
+        .bottom-nav { display:none; position:fixed; bottom:0; left:0; width:100%; background:rgba(0,0,0,0.92); -webkit-backdrop-filter:blur(12px); backdrop-filter:blur(12px); border-top:1px solid rgba(255,255,255,0.06); padding:10px 0 14px; z-index:999; justify-content:space-around; align-items:center; }
+        .bottom-nav a { display:flex; flex-direction:column; align-items:center; text-decoration:none; color:#888; font-size:0.55rem; font-weight:500; transition:0.3s; gap:4px; padding:6px 12px; border-radius:10px; min-width:56px; position:relative; }
+        .bottom-nav a svg { width:28px; height:28px; stroke:#888; fill:none; stroke-width:2; stroke-linecap:round; stroke-linejoin:round; transition:0.3s; }
+        .bottom-nav a .label { font-size:0.5rem; letter-spacing:0.3px; text-transform:uppercase; color:#888; transition:0.3s; }
+        .bottom-nav a:hover svg, .bottom-nav a:active svg, .bottom-nav a.active svg { stroke:var(--yellow); filter:drop-shadow(0 0 10px rgba(252,209,22,0.4)); }
+        .bottom-nav a:hover .label, .bottom-nav a:active .label, .bottom-nav a.active .label { color:var(--yellow); }
+        .bottom-nav a.active::before { content:''; position:absolute; top:-2px; left:50%; transform:translateX(-50%); width:20px; height:3px; background:var(--yellow); border-radius:4px; box-shadow:0 0 12px rgba(252,209,22,0.5); }
+        @media (max-width:700px) { .bottom-nav { display:flex; } }
+
+        @supports not (aspect-ratio:16/9) {
+            .video-thumbnail { height:0; padding-bottom:56.25%; position:relative; }
+            .video-thumbnail img { position:absolute; top:0; left:0; width:100%; height:100%; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ===== HEADER ===== -->
+    <nav class="nav" role="navigation" aria-label="Menú principal">
+        <a href="index.html" class="logo" aria-label="VTC - Inicio">
+            <img src="img/logo.png" alt="Logo VTC" loading="lazy" />
+            <span class="logo-text">
+                <span class="v">V</span><span class="t">T</span><span class="c">C</span>
+            </span>
+        </a>
+
+        <button class="hamburger" id="hamburger" aria-label="Abrir menú" aria-expanded="false">
+            <span></span><span></span><span></span>
+        </button>
+
+        <ul id="navMenu">
+            <li><a href="index.html#inicio">Inicio</a></li>
+            <li class="dropdown">
+                <a href="javascript:void(0)" onclick="toggleDropdown(event)">Nosotros ▾</a>
+                <ul class="dropdown-menu">
+                    <li><a href="quienes-somos.html">Quiénes Somos</a></li>
+                    <li><a href="organigrama.html">Organigrama Institucional</a></li>
+                </ul>
+            </li>
+            <li><a href="index.html#proyectos">Proyectos</a></li>
+            <li><a href="index.html#youtube">Vigilando Ando</a></li>
+            <li><a href="index.html#mapa">Mapa</a></li>
+            <li><a href="proyectosvigilados.html" target="_blank">Proyectos Vigilados</a></li>
+            <li><a href="index.html#contacto">Contacto</a></li>
+        </ul>
+    </nav>
+
+    <!-- ===== CONTENIDO ===== -->
+    <h1>Organigrama Institucional</h1>
+    <p class="subtitle">Veeduría Técnica Ciudadana (VTC)</p>
+
+    <!-- ===== NIVEL DIRECTIVO ===== -->
+    <h2>Nivel Directivo</h2>
+
+    <h3>ROBINSON OLARTE</h3>
+    <p class="cargo">Presidente</p>
+    <p class="detalle">Fundador de la Veeduría Técnica Ciudadana</p>
+    <p><strong style="color:#fff;">Responsable de:</strong></p>
+    <ul class="responsabilidades">
+        <li>Representación institucional.</li>
+        <li>Direccionamiento estratégico.</li>
+        <li>Relaciones institucionales.</li>
+        <li>Coordinación general de la veeduría.</li>
+        <li>Fortalecimiento de la participación ciudadana.</li>
+        <li>Gestión de alianzas y cooperación.</li>
+    </ul>
+
+    <h3>MARÍA AZUCENA CRUZ</h3>
+    <p class="cargo">Vicepresidenta</p>
+    <p class="detalle">Fundadora de la Veeduría Técnica Ciudadana</p>
+    <p><strong style="color:#fff;">Responsable de:</strong></p>
+    <ul class="responsabilidades">
+        <li>Apoyo a la dirección institucional.</li>
+        <li>Coordinación comunitaria.</li>
+        <li>Participación ciudadana.</li>
+        <li>Seguimiento a iniciativas sociales.</li>
+        <li>Relacionamiento con organizaciones ciudadanas.</li>
+    </ul>
+
+    <!-- ===== NIVEL EJECUTIVO ===== -->
+    <h2>Nivel Ejecutivo</h2>
+
+    <h3>ING. JEFERSON JEAN CARLO OLARTE LANCHEROS</h3>
+    <p class="cargo">Director de Procesos y Supervisión Técnica</p>
+    <p class="detalle">Ingeniero Civil – M.P. No. 151037-0602160 STD</p>
+    <p><strong style="color:#fff;">Responsable de:</strong></p>
+    <ul class="responsabilidades">
+        <li>Dirección técnica institucional.</li>
+        <li>Supervisión técnica de proyectos.</li>
+        <li>Planeación de visitas de campo.</li>
+        <li>Elaboración de informes técnicos.</li>
+        <li>Coordinación de procesos de seguimiento.</li>
+        <li>Control de calidad técnica documental.</li>
+        <li>Gestión de observaciones y hallazgos.</li>
+    </ul>
+
+    <!-- ===== OFICINAS ===== -->
+    <h2>Oficinas y Departamentos</h2>
+
+    <div class="oficina">
+        <h4>OFICINA DE PROCESOS TÉCNICOS</h4>
+        <p><strong style="color:#fff;">Responsable de:</strong></p>
+        <ul class="responsabilidades">
+            <li>Seguimiento de obras públicas.</li>
+            <li>Inspecciones técnicas.</li>
+            <li>Verificación de cantidades de obra.</li>
+            <li>Seguimiento de personal contractual.</li>
+            <li>Control de cronogramas.</li>
+            <li>Elaboración de conceptos técnicos.</li>
+        </ul>
+        <p><strong style="color:#fff;">Áreas de seguimiento:</strong></p>
+        <ul class="responsabilidades">
+            <li>Infraestructura vial.</li>
+            <li>Infraestructura educativa.</li>
+            <li>Infraestructura hospitalaria.</li>
+            <li>Infraestructura deportiva.</li>
+            <li>Infraestructura institucional.</li>
+            <li>Infraestructura cultural.</li>
+            <li>Infraestructura turística.</li>
+            <li>Servicios públicos.</li>
+        </ul>
+    </div>
+
+    <div class="oficina">
+        <h4>OFICINA DE PROCESOS JURÍDICOS Y CONTRACTUALES</h4>
+        <p><strong style="color:#fff;">Responsable de:</strong></p>
+        <ul class="responsabilidades">
+            <li>Derechos de petición.</li>
+            <li>Seguimiento contractual.</li>
+            <li>Solicitudes de información.</li>
+            <li>Revisión normativa.</li>
+            <li>Seguimiento a SECOP.</li>
+            <li>Control de obligaciones contractuales.</li>
+            <li>Vigilancia de procesos de contratación estatal.</li>
+        </ul>
+    </div>
+
+    <div class="oficina">
+        <h4>OFICINA DE PARTICIPACIÓN CIUDADANA Y CONTROL SOCIAL</h4>
+        <p><strong style="color:#fff;">Responsable de:</strong></p>
+        <ul class="responsabilidades">
+            <li>Atención a la ciudadanía.</li>
+            <li>Recepción de denuncias.</li>
+            <li>Capacitación comunitaria.</li>
+            <li>Acompañamiento a organizaciones sociales.</li>
+            <li>Promoción del control social.</li>
+        </ul>
+    </div>
+
+    <div class="oficina">
+        <h4>OFICINA DE TRANSPARENCIA Y ACCESO A LA INFORMACIÓN</h4>
+        <p><strong style="color:#fff;">Responsable de:</strong></p>
+        <ul class="responsabilidades">
+            <li>Gestión documental.</li>
+            <li>Acceso a la información pública.</li>
+            <li>Publicación de informes.</li>
+            <li>Seguimiento Ley 1712 de 2014.</li>
+            <li>Consolidación de bases de datos.</li>
+        </ul>
+    </div>
+
+    <div class="oficina">
+        <h4>OFICINA DE COMUNICACIONES Y MEDIOS</h4>
+        <p><strong style="color:#fff;">Responsable de:</strong></p>
+        <ul class="responsabilidades">
+            <li>Canal de YouTube "Vigilando Ando".</li>
+            <li>Producción audiovisual.</li>
+            <li>Registro fotográfico.</li>
+            <li>Comunicaciones institucionales.</li>
+            <li>Redes sociales.</li>
+            <li>Difusión de informes y resultados.</li>
+        </ul>
+    </div>
+
+    <div class="oficina">
+        <h4>DEPARTAMENTO TIC</h4>
+        <p><strong style="color:#fff;">Responsable de:</strong></p>
+        <ul class="responsabilidades">
+            <li>Plataforma web VTC.</li>
+            <li>Sistemas de información.</li>
+            <li>Bases de datos.</li>
+            <li>Soporte tecnológico.</li>
+            <li>Seguridad informática.</li>
+            <li>Automatización de procesos.</li>
+        </ul>
+    </div>
+
+    <!-- ===== COMITÉ TÉCNICO CONSULTIVO ===== -->
+    <h2>Comité Técnico Consultivo</h2>
+    <p style="color:#c0c0c0;">Integrado por profesionales aliados en:</p>
+    <ul class="responsabilidades">
+        <li>Ingeniería Civil.</li>
+        <li>Arquitectura.</li>
+        <li>Ingeniería Eléctrica.</li>
+        <li>Ingeniería Ambiental.</li>
+        <li>Seguridad y Salud en el Trabajo.</li>
+        <li>Derecho Administrativo.</li>
+        <li>Contratación Estatal.</li>
+        <li>Interventoría.</li>
+        <li>Auditoría y Control.</li>
+    </ul>
+
+    <!-- ===== ESTRUCTURA JERÁRQUICA (IMAGEN) ===== -->
+    <h2>Estructura Jerárquica</h2>
+    <img src="img/organigrama.jpg" alt="Estructura jerárquica de la VTC" class="estructura-img" loading="lazy" />
+
+    <a href="index.html" class="back-link">← Volver a la página principal</a>
+
+    <!-- ===== BOTÓN FLOTANTE ===== -->
+    <button class="floating" onclick="alert('Contáctanos para más información')" aria-label="Contacto">
+        <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+        </svg>
+    </button>
+
+    <!-- ===== BOTTOM NAV ===== -->
+    <nav class="bottom-nav" role="navigation" aria-label="Menú inferior">
+        <a href="index.html#inicio" aria-label="Inicio">
+            <svg viewBox="0 0 24 24"><path d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
+            <span class="label">Inicio</span>
+        </a>
+        <a href="proyectosvigilados.html" aria-label="Proyectos Vigilados">
+            <svg viewBox="0 0 24 24"><path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+            <span class="label">Proyectos</span>
+        </a>
+        <a href="index.html#youtube" aria-label="Vigilando Ando">
+            <svg viewBox="0 0 24 24"><path d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
+            <span class="label">Vigilando</span>
+        </a>
+        <a href="index.html#mapa" aria-label="Mapa">
+            <svg viewBox="0 0 24 24"><path d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+            <span class="label">Mapa</span>
+        </a>
+    </nav>
+
+    <script>
+        // ----- DROPDOWN -----
+        function toggleDropdown(e) {
+            e.preventDefault();
+            const parent = e.currentTarget.closest('.dropdown');
+            const menu = parent.querySelector('.dropdown-menu');
+            document.querySelectorAll('.dropdown-menu.open').forEach(m => {
+                if (m !== menu) m.classList.remove('open');
+            });
+            menu.classList.toggle('open');
+        }
+
+        document.addEventListener('click', function(e) {
+            if (!e.target.closest('.dropdown')) {
+                document.querySelectorAll('.dropdown-menu.open').forEach(m => m.classList.remove('open'));
+            }
+        });
+
+        // ----- HAMBURGUESA -----
+        const hamburger = document.getElementById('hamburger');
+        const navMenu = document.getElementById('navMenu');
+        hamburger.addEventListener('click', function() {
+            this.classList.toggle('active');
+            navMenu.classList.toggle('open');
+            this.setAttribute('aria-expanded', this.classList.contains('active'));
+            if (!navMenu.classList.contains('open')) {
+                document.querySelectorAll('.dropdown-menu.open').forEach(m => m.classList.remove('open'));
+            }
+        });
+
+        document.querySelectorAll('#navMenu a').forEach(link => {
+            link.addEventListener('click', function() {
+                if (!this.getAttribute('onclick')) {
+                    hamburger.classList.remove('active');
+                    navMenu.classList.remove('open');
+                    hamburger.setAttribute('aria-expanded','false');
+                }
+            });
+        });
+
+        // ----- BOTTOM NAV ACTIVATION -----
+        document.querySelectorAll('.bottom-nav a').forEach(link => {
+            link.addEventListener('click', function(e) {
+                document.querySelectorAll('.bottom-nav a').forEach(el => el.classList.remove('active'));
+                this.classList.add('active');
+            });
+        });
+    </script>
+</body>
+</html>
