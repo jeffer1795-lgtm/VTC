@@ -1,0 +1,861 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <title>Proyectos Vigilados | VTC</title>
+    <meta name="description" content="Listado completo de proyectos vigilados por la VTC en Santander y Colombia." />
+    <link rel="icon" href="img/logo.png" type="image/png" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700;900&family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" defer></script>
+
+    <style>
+        /* ========== RESET Y VARIABLES ========== */
+        * { margin:0; padding:0; box-sizing:border-box; }
+        :root {
+            --black:#080808; --black2:#111; --gray:#a0a0a0; --white:#fff;
+            --yellow:#FCD116; --blue:#003893; --red:#CE1126;
+            --font-display:'Space Grotesk',sans-serif; --font-body:'Inter',sans-serif;
+        }
+        html { scroll-behavior:smooth; -webkit-text-size-adjust:100%; }
+        body { font-family:var(--font-body); background:var(--black); color:var(--white); overflow-x:hidden; -webkit-font-smoothing:antialiased; -moz-osx-font-smoothing:grayscale; padding-bottom:80px; }
+
+        ::-webkit-scrollbar { width:6px; }
+        ::-webkit-scrollbar-track { background:var(--black); }
+        ::-webkit-scrollbar-thumb { background:var(--yellow); border-radius:10px; }
+
+        /* ========== HEADER ========== */
+        .nav {
+            position:fixed; top:0; left:0; width:100%; display:flex; justify-content:space-between; align-items:center;
+            padding:12px 5%; z-index:1000; background:rgba(0,0,0,0.5);
+            -webkit-backdrop-filter:blur(16px); backdrop-filter:blur(16px);
+            border-bottom:1px solid rgba(255,255,255,0.04); transition:0.3s;
+        }
+        .logo { display:flex; align-items:center; gap:10px; text-decoration:none; flex-shrink:0; }
+        .logo img { height:1.64rem; width:auto; display:block; -webkit-user-select:none; user-select:none; }
+        .logo-text { font-family:var(--font-display); font-size:1.64rem; font-weight:900; letter-spacing:-2px; line-height:1; }
+        .logo-text .v { color:var(--yellow); } .logo-text .t { color:var(--blue); } .logo-text .c { color:var(--red); }
+
+        .nav ul { display:flex; gap:30px; list-style:none; }
+        .nav a { color:var(--white); text-decoration:none; font-size:0.85rem; font-weight:500; letter-spacing:0.5px; transition:0.3s; position:relative; }
+        .nav a::after { content:''; position:absolute; bottom:-4px; left:0; width:0; height:2px; background:var(--yellow); transition:0.3s; }
+        .nav a:hover::after { width:100%; }
+        .nav ul li { position:relative; }
+        .nav ul li .dropdown-menu { display:none; position:absolute; top:100%; left:0; background:rgba(0,0,0,0.95); -webkit-backdrop-filter:blur(16px); backdrop-filter:blur(16px); border:1px solid rgba(255,255,255,0.06); border-radius:8px; padding:10px 0; min-width:220px; z-index:1001; list-style:none; flex-direction:column; gap:0; }
+        .nav ul li .dropdown-menu.open { display:flex; }
+        .nav ul li .dropdown-menu a { display:block; padding:10px 20px; color:var(--white); text-decoration:none; font-size:0.85rem; font-weight:500; transition:0.3s; white-space:nowrap; }
+        .nav ul li .dropdown-menu a:hover { background:rgba(255,255,255,0.05); color:var(--yellow); }
+        .nav ul li .dropdown-menu a::after { display:none; }
+
+        .hamburger { display:none; flex-direction:column; gap:4px; cursor:pointer; background:none; border:none; padding:6px; z-index:1002; }
+        .hamburger span { display:block; width:26px; height:2.5px; background:var(--white); border-radius:3px; transition:0.3s; -webkit-transform-origin:center; transform-origin:center; }
+        .hamburger.active span:nth-child(1) { -webkit-transform:rotate(45deg) translate(6px,6px); transform:rotate(45deg) translate(6px,6px); }
+        .hamburger.active span:nth-child(2) { opacity:0; }
+        .hamburger.active span:nth-child(3) { -webkit-transform:rotate(-45deg) translate(6px,-6px); transform:rotate(-45deg) translate(6px,-6px); }
+
+        @media (max-width:700px) {
+            .hamburger { display:flex; }
+            .nav { padding:8px 5%; }
+            .logo img { height:1.33rem; }
+            .logo-text { font-size:1.33rem; }
+            .logo { gap:6px; }
+            .hamburger span { width:22px; height:2px; }
+
+            .nav ul {
+                position:fixed; top:0; right:-100%; width:80%; max-width:320px; height:100vh;
+                background:rgba(0,0,0,0.98); -webkit-backdrop-filter:blur(16px); backdrop-filter:blur(16px);
+                flex-direction:column; justify-content:flex-start; align-items:stretch;
+                gap:8px; padding:80px 16px 30px;
+                transition:0.4s cubic-bezier(0.23,1,0.32,1);
+                border-left:1px solid rgba(255,255,255,0.04); overflow-y:auto; z-index:1001;
+            }
+            .nav ul.open { right:0; }
+            .nav ul li { width:100%; }
+
+            .nav ul li .dropdown-menu {
+                display:none !important;
+                position:static !important;
+                background:rgba(255,255,255,0.05) !important;
+                border:none !important;
+                border-radius:0 !important;
+                padding:4px 0 4px 16px !important;
+                margin-top:4px !important;
+                flex-direction:column !important;
+                gap:4px !important;
+                width:100% !important;
+                min-width:unset !important;
+                box-sizing:border-box !important;
+                height:auto !important;
+                min-height:unset !important;
+                overflow:hidden !important;
+            }
+            .nav ul li .dropdown-menu.open {
+                display:flex !important;
+            }
+            .nav ul li .dropdown-menu a {
+                white-space:normal !important;
+                font-size:0.85rem !important;
+                padding:6px 12px !important;
+                text-align:left !important;
+                display:block !important;
+                box-sizing:border-box !important;
+                width:100% !important;
+                color:#ccc !important;
+                line-height:1.4 !important;
+            }
+            .nav ul li .dropdown-menu a:hover {
+                color:#FCD116 !important;
+                background:rgba(255,255,255,0.05) !important;
+            }
+            .nav ul li .dropdown > a::after { display:none !important; }
+            .nav ul li .dropdown > a {
+                font-weight:600 !important;
+                color:#FCD116 !important;
+                cursor:pointer !important;
+            }
+        }
+
+        /* ========== BOTÓN FLOTANTE ========== */
+        .floating { position:fixed; right:20px; bottom:100px; width:64px; height:64px; border-radius:50%; background:var(--yellow); border:none; cursor:pointer; z-index:999; display:flex; align-items:center; justify-content:center; box-shadow:0 8px 25px rgba(252,209,22,0.3); transition:0.3s; }
+        .floating:hover { transform:scale(1.08); box-shadow:0 12px 35px rgba(252,209,22,0.5); }
+        .floating svg { stroke:white; width:32px; height:32px; }
+        @media (max-width:700px) { .floating { right:16px; bottom:100px; width:56px; height:56px; } .floating svg { width:28px; height:28px; } }
+
+        /* ========== BOTTOM NAV ========== */
+        .bottom-nav { display:none; position:fixed; bottom:0; left:0; width:100%; background:rgba(0,0,0,0.92); -webkit-backdrop-filter:blur(12px); backdrop-filter:blur(12px); border-top:1px solid rgba(255,255,255,0.06); padding:10px 0 14px; z-index:999; justify-content:space-around; align-items:center; }
+        .bottom-nav a { display:flex; flex-direction:column; align-items:center; text-decoration:none; color:#888; font-size:0.55rem; font-weight:500; transition:0.3s; gap:4px; padding:6px 12px; border-radius:10px; min-width:56px; position:relative; -webkit-tap-highlight-color:transparent; }
+        .bottom-nav a svg { width:28px; height:28px; stroke:#888; fill:none; stroke-width:2; stroke-linecap:round; stroke-linejoin:round; transition:0.3s; }
+        .bottom-nav a .label { font-size:0.5rem; letter-spacing:0.3px; text-transform:uppercase; color:#888; transition:0.3s; }
+        .bottom-nav a.active svg { stroke:var(--yellow); filter:drop-shadow(0 0 10px rgba(252,209,22,0.4)); }
+        .bottom-nav a.active .label { color:var(--yellow); }
+        .bottom-nav a.active::before { content:''; position:absolute; top:-2px; left:50%; transform:translateX(-50%); width:20px; height:3px; background:var(--yellow); border-radius:4px; box-shadow:0 0 12px rgba(252,209,22,0.5); }
+        @media (max-width:700px) { .bottom-nav { display:flex; } }
+
+        /* ========== MODAL ========== */
+        .modal { position:fixed; top:0; right:-100%; width:480px; height:100%; background:#111; padding:50px 40px; transition:0.5s cubic-bezier(0.23,1,0.32,1); z-index:9999; overflow-y:auto; border-left:1px solid rgba(255,255,255,0.05); }
+        .modal.active { right:0; }
+        .modal h3 { font-size:2.2rem; margin-bottom:30px; font-family:var(--font-display); }
+        .modal input, .modal select, .modal textarea { width:100%; padding:16px 18px; background:#1b1b1b; border:1px solid #2a2a2a; color:var(--white); margin-bottom:18px; border-radius:6px; font-family:var(--font-body); font-size:0.95rem; transition:0.3s; }
+        .modal input:focus, .modal select:focus, .modal textarea:focus { border-color:var(--yellow); outline:none; background:#222; }
+        .modal button { width:100%; padding:18px; background:var(--yellow); border:none; font-weight:700; font-size:1rem; cursor:pointer; border-radius:6px; color:var(--black); transition:0.3s; }
+        .modal button:hover { background:#e0b000; -webkit-transform:scale(1.01); transform:scale(1.01); }
+        .modal .close-modal { position:absolute; top:20px; right:25px; font-size:2rem; cursor:pointer; color:var(--gray); transition:0.3s; background:none; border:none; }
+        .modal .close-modal:hover { color:var(--white); -webkit-transform:rotate(90deg); transform:rotate(90deg); }
+        @media (max-width:700px) { .modal { width:100%; padding:30px 20px; } }
+
+        /* ========== CONTENIDO PROYECTOS VIGILADOS ========== */
+        .container {
+            max-width:1300px;
+            width:100%;
+            margin:80px auto 40px;
+            background:#111;
+            border-radius:32px;
+            padding:2.5rem 2.2rem;
+            box-shadow:0 20px 60px rgba(0,0,0,0.8);
+        }
+
+        .header-projects {
+            display:flex;
+            flex-wrap:wrap;
+            justify-content:space-between;
+            align-items:center;
+            margin-bottom:2.5rem;
+            border-bottom:1px solid #2a2a2a;
+            padding-bottom:1.8rem;
+        }
+        .header-left { display:flex; flex-direction:column; gap:0.3rem; }
+        .header-title {
+            font-family:var(--font-display);
+            font-weight:900;
+            font-size:2.2rem;
+            color:#ffffff;
+            letter-spacing:-0.02em;
+        }
+        .header-title i { margin-right:0.6rem; color:#FCD116; }
+        .header-sub {
+            font-size:1rem;
+            color:#a0a0a0;
+            font-weight:300;
+            display:flex;
+            align-items:center;
+            gap:0.5rem;
+        }
+        .header-sub i { color:#FCD116; }
+        .header-right {
+            background:#1a1a1a;
+            padding:0.5rem 1.5rem;
+            border-radius:40px;
+            border:1px solid #2a2a2a;
+            color:#c0c0c0;
+            font-weight:500;
+            font-size:0.9rem;
+            display:flex;
+            align-items:center;
+            gap:0.6rem;
+        }
+        .header-right i { color:#FCD116; }
+
+        .categories-grid {
+            display:grid;
+            grid-template-columns:repeat(auto-fill, minmax(300px,1fr));
+            gap:2rem;
+            margin:1.5rem 0 2rem 0;
+        }
+
+        .category-card {
+            background:#1a1a1a;
+            border-radius:20px;
+            box-shadow:0 8px 24px rgba(0,0,0,0.5);
+            overflow:hidden;
+            transition:transform 0.2s ease, box-shadow 0.3s ease;
+            border-top:6px solid #FCD116;
+            display:flex;
+            flex-direction:column;
+        }
+        .category-card:hover {
+            transform:translateY(-5px);
+            box-shadow:0 16px 40px rgba(0,0,0,0.7);
+        }
+        .level-directive { border-top-color:#FCD116; }
+        .level-executive { border-top-color:#003893; }
+        .level-office { border-top-color:#CE1126; border-top-width:4px; }
+        .level-committee { border-top-color:#FCD116; }
+
+        .category-header {
+            padding:1rem 1.2rem 0.8rem 1.2rem;
+            display:flex;
+            align-items:center;
+            gap:0.8rem;
+            border-bottom:1px solid #2a2a2a;
+        }
+        .category-header i {
+            font-size:1.4rem;
+            color:#FCD116;
+            width:2rem;
+            text-align:center;
+        }
+        .category-header h2 {
+            font-family:var(--font-display);
+            font-weight:700;
+            font-size:1.1rem;
+            color:#ffffff;
+            letter-spacing:-0.01em;
+            flex:1;
+        }
+        .category-header .area-tag {
+            background:rgba(255,255,255,0.06);
+            color:#a0a0a0;
+            font-size:0.65rem;
+            font-weight:500;
+            padding:0.2rem 0.8rem;
+            border-radius:30px;
+            border:1px solid #2a2a2a;
+            letter-spacing:0.3px;
+            text-transform:uppercase;
+        }
+        .category-header .count-badge {
+            background:#2a2a2a;
+            color:#c0c0c0;
+            font-size:0.7rem;
+            font-weight:600;
+            padding:0.1rem 0.7rem;
+            border-radius:30px;
+            border:1px solid #3a3a3a;
+        }
+
+        .project-list {
+            list-style:none;
+            padding:0.6rem 0.2rem 0.8rem 0.2rem;
+            flex:1;
+        }
+        .project-list li {
+            padding:0.45rem 1.2rem 0.45rem 1.8rem;
+            font-size:0.92rem;
+            color:#c0c0c0;
+            border-bottom:1px solid #252525;
+            position:relative;
+            transition:background 0.15s;
+        }
+        .project-list li:last-child { border-bottom:none; }
+        .project-list li::before {
+            content:"▸";
+            color:#FCD116;
+            font-weight:700;
+            font-size:1.1rem;
+            position:absolute;
+            left:0.2rem;
+            top:0.45rem;
+        }
+        .project-list li:hover {
+            background:#242424;
+            border-radius:6px;
+        }
+
+        .location-section {
+            margin-top:2.8rem;
+            background:#1a1a1a;
+            border-radius:24px;
+            padding:1.8rem 2rem;
+            border:1px solid #2a2a2a;
+            display:flex;
+            flex-wrap:wrap;
+            align-items:center;
+            justify-content:space-between;
+            box-shadow:inset 0 2px 8px rgba(0,0,0,0.3);
+        }
+        .location-text {
+            display:flex;
+            align-items:center;
+            gap:1rem;
+        }
+        .location-text i {
+            font-size:2.2rem;
+            color:#FCD116;
+        }
+        .location-text h3 {
+            font-family:var(--font-display);
+            font-weight:800;
+            font-size:1.3rem;
+            color:#FCD116;
+        }
+        .location-text p {
+            color:#a0a0a0;
+            font-size:0.95rem;
+            margin-top:0.1rem;
+        }
+        .location-tag {
+            background:#111;
+            padding:0.4rem 1.6rem;
+            border-radius:60px;
+            border:1px solid #2a2a2a;
+            color:#FCD116;
+            font-weight:500;
+            font-size:0.9rem;
+            display:flex;
+            align-items:center;
+            gap:0.6rem;
+        }
+        .location-tag i { color:#FCD116; }
+
+        .map-container {
+            margin-top:20px;
+            border-radius:16px;
+            overflow:hidden;
+            border:1px solid rgba(255,255,255,0.06);
+            height:450px;
+            width:100%;
+            background:#1a1a1a;
+        }
+        #map { height:100%; width:100%; }
+
+        .footer-note {
+            margin-top:2.2rem;
+            text-align:center;
+            font-size:0.8rem;
+            color:#666;
+            border-top:1px solid #1f1f1f;
+            padding-top:1.8rem;
+            display:flex;
+            justify-content:center;
+            gap:2.5rem;
+            flex-wrap:wrap;
+        }
+        .footer-note span i { color:#FCD116; margin-right:0.4rem; }
+
+        /* ===== MAPA (Leaflet) ===== */
+        .leaflet-control-zoom { border:none !important; }
+        .leaflet-control-zoom a { background:#222 !important; color:white !important; border:1px solid #333 !important; }
+        .leaflet-popup-content-wrapper { background:#111 !important; color:white !important; border-radius:8px !important; }
+        .leaflet-popup-tip { background:#111 !important; }
+        .leaflet-popup-content strong { color:#FCD116 !important; }
+
+        @media (max-width:768px) {
+            .container { padding:1.5rem 1rem; border-radius:20px; margin:70px auto 30px; }
+            .header-projects { flex-direction:column; align-items:flex-start; gap:0.8rem; }
+            .header-title { font-size:1.6rem; }
+            .header-right { align-self:flex-start; }
+            .categories-grid { grid-template-columns:1fr; gap:1.5rem; }
+            .location-section { flex-direction:column; align-items:flex-start; gap:1rem; }
+            .location-tag { align-self:flex-start; }
+            .map-container { height:300px; }
+            body { padding-bottom:80px; }
+        }
+        @media (max-width:480px) {
+            .header-title { font-size:1.3rem; }
+            .category-header h2 { font-size:1rem; }
+            .project-list li { font-size:0.85rem; padding-left:1.6rem; }
+            .map-container { height:250px; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ===== HEADER ===== -->
+    <nav class="nav" role="navigation" aria-label="Menú principal">
+        <a href="index.html" class="logo" aria-label="VTC - Inicio">
+            <img src="img/logo.png" alt="Logo VTC" loading="lazy" />
+            <span class="logo-text">
+                <span class="v">V</span><span class="t">T</span><span class="c">C</span>
+            </span>
+        </a>
+        <button class="hamburger" id="hamburger" aria-label="Abrir menú" aria-expanded="false">
+            <span></span><span></span><span></span>
+        </button>
+        <ul id="navMenu">
+            <li><a href="index.html#inicio">Inicio</a></li>
+            <li class="dropdown">
+                <a href="javascript:void(0)" onclick="toggleDropdown(event)">Nosotros ▾</a>
+                <ul class="dropdown-menu">
+                    <li><a href="quienes-somos.html">Quiénes Somos</a></li>
+                    <li><a href="organigrama.html">Organigrama Institucional</a></li>
+                </ul>
+            </li>
+            <li><a href="index.html#proyectos">Proyectos</a></li>
+            <li><a href="index.html#youtube">Vigilando Ando</a></li>
+            <li><a href="index.html#mapa">Mapa</a></li>
+            <li><a href="proyectosvigilados.html" target="_blank">Proyectos Vigilados</a></li>
+            <li><a href="index.html#contacto">Contacto</a></li>
+        </ul>
+    </nav>
+
+    <!-- ===== CONTENIDO ===== -->
+    <div class="container">
+
+        <div class="header-projects">
+            <div class="header-left">
+                <div class="header-title">
+                    <i class="fas fa-clipboard-list"></i> PROYECTOS VIGILADOS
+                </div>
+                <div class="header-sub">
+                    <i class="fas fa-flag-checkered"></i> Listado completo de los proyectos bajo seguimiento técnico de la VTC
+                </div>
+            </div>
+            <div class="header-right">
+                <i class="fas fa-map-pin"></i> Santander · 2026
+            </div>
+        </div>
+
+        <div class="categories-grid">
+            <!-- EDUCACIÓN -->
+            <div class="category-card level-directive">
+                <div class="category-header">
+                    <i class="fas fa-graduation-cap"></i>
+                    <h2>Educación</h2>
+                    <span class="area-tag">Área</span>
+                    <span class="count-badge">6</span>
+                </div>
+                <ul class="project-list">
+                    <li>UTS Piedecuesta Fase III</li>
+                    <li>Colegio El Guayabal</li>
+                    <li>Colegio Integrado Los Santos</li>
+                    <li>Colegio Pitiguo</li>
+                    <li>Colegio Manuela Beltrán</li>
+                    <li>Colegio La Laguna</li>
+                </ul>
+            </div>
+
+            <!-- INFRAESTRUCTURA VIAL -->
+            <div class="category-card level-directive">
+                <div class="category-header">
+                    <i class="fas fa-road"></i>
+                    <h2>Infraestructura Vial</h2>
+                    <span class="area-tag">Área</span>
+                    <span class="count-badge">10</span>
+                </div>
+                <ul class="project-list">
+                    <li>Girón – Zapatoca</li>
+                    <li>Zapatoca – Barichara</li>
+                    <li>Coromoro – Charalá</li>
+                    <li>Bucaramanga – Matanza</li>
+                    <li>Chima – Simacota</li>
+                    <li>Contratación – Guadalupe</li>
+                    <li>Mogotes – San Joaquín</li>
+                    <li>Carrera Primera de San Gil</li>
+                    <li>Vías urbanas de Güepsa</li>
+                    <li>Vías terciarias de Curití</li>
+                </ul>
+            </div>
+
+            <!-- INFRAESTRUCTURA HOSPITALARIA -->
+            <div class="category-card level-directive">
+                <div class="category-header">
+                    <i class="fas fa-hospital"></i>
+                    <h2>Infraestructura Hospitalaria</h2>
+                    <span class="area-tag">Área</span>
+                    <span class="count-badge">4</span>
+                </div>
+                <ul class="project-list">
+                    <li>Hospital Regional de San Gil</li>
+                    <li>Hospital San Pedro Claver de Mogotes</li>
+                    <li>ESE Hospital Integrado San Roque</li>
+                    <li>ESE Hospital Nuestra Señora de las Nieves</li>
+                </ul>
+            </div>
+
+            <!-- PUENTES -->
+            <div class="category-card level-directive">
+                <div class="category-header">
+                    <i class="fas fa-bridge"></i>
+                    <h2>Puentes</h2>
+                    <span class="area-tag">Área</span>
+                    <span class="count-badge">4</span>
+                </div>
+                <ul class="project-list">
+                    <li>Puente Vehicular Mogotes</li>
+                    <li>Puente Pescaderito</li>
+                    <li>Puente Vehicular Confines</li>
+                    <li>Puente Metálico</li>
+                </ul>
+            </div>
+
+            <!-- INFRAESTRUCTURA DEPORTIVA -->
+            <div class="category-card level-executive">
+                <div class="category-header">
+                    <i class="fas fa-futbol"></i>
+                    <h2>Infraestructura Deportiva</h2>
+                    <span class="area-tag">Área</span>
+                    <span class="count-badge">6</span>
+                </div>
+                <ul class="project-list">
+                    <li>Cancha La Marte</li>
+                    <li>Cancha Cristo Rey</li>
+                    <li>Villa Olímpica de Vélez</li>
+                    <li>Villa Olímpica de Cimitarra</li>
+                    <li>Estadio Municipal de Oiba</li>
+                    <li>Escenarios deportivos de Bucaramanga</li>
+                </ul>
+            </div>
+
+            <!-- INFRAESTRUCTURA CULTURAL -->
+            <div class="category-card level-executive">
+                <div class="category-header">
+                    <i class="fas fa-landmark"></i>
+                    <h2>Infraestructura Cultural</h2>
+                    <span class="area-tag">Área</span>
+                    <span class="count-badge">3</span>
+                </div>
+                <ul class="project-list">
+                    <li>Parque Cultural Aldea Guane</li>
+                    <li>Casa de la Cultura de Contratación</li>
+                    <li>Parque Principal de Confines</li>
+                </ul>
+            </div>
+
+            <!-- INFRAESTRUCTURA TURÍSTICA -->
+            <div class="category-card level-executive">
+                <div class="category-header">
+                    <i class="fas fa-umbrella-beach"></i>
+                    <h2>Infraestructura Turística</h2>
+                    <span class="area-tag">Área</span>
+                    <span class="count-badge">4</span>
+                </div>
+                <ul class="project-list">
+                    <li>Sendero Las Gachas</li>
+                    <li>Nuevo Sendero Las Gachas</li>
+                    <li>Infraestructura Náutica de Santander</li>
+                    <li>Aeropuerto Los Pozos</li>
+                </ul>
+            </div>
+
+            <!-- INFRAESTRUCTURA INSTITUCIONAL -->
+            <div class="category-card level-office">
+                <div class="category-header">
+                    <i class="fas fa-city"></i>
+                    <h2>Infraestructura Institucional</h2>
+                    <span class="area-tag">Área</span>
+                    <span class="count-badge">5</span>
+                </div>
+                <ul class="project-list">
+                    <li>Palacio Municipal de Floridablanca</li>
+                    <li>Palacio Municipal de Aratoca</li>
+                    <li>Centro Administrativo Municipal de Guapotá</li>
+                    <li>Estación de Policía de Oiba</li>
+                    <li>CAI de Girón</li>
+                </ul>
+            </div>
+
+            <!-- GESTIÓN DEL RIESGO -->
+            <div class="category-card level-office">
+                <div class="category-header">
+                    <i class="fas fa-triangle-exclamation"></i>
+                    <h2>Gestión del Riesgo</h2>
+                    <span class="area-tag">Área</span>
+                    <span class="count-badge">7</span>
+                </div>
+                <ul class="project-list">
+                    <li>Estabilización Don Bosco</li>
+                    <li>Estabilización Nazareth</li>
+                    <li>Estabilización La Gloria</li>
+                    <li>Obras CDMB</li>
+                    <li>Mitigación Camilo Torres</li>
+                    <li>Mitigación Cuyanita</li>
+                    <li>Mitigación La Feria</li>
+                </ul>
+            </div>
+
+            <!-- ACUEDUCTO Y ALCANTARILLADO -->
+            <div class="category-card level-committee">
+                <div class="category-header">
+                    <i class="fas fa-water"></i>
+                    <h2>Acueducto y Alcantarillado</h2>
+                    <span class="area-tag">Área</span>
+                    <span class="count-badge">3</span>
+                </div>
+                <ul class="project-list">
+                    <li>Acueducto y alcantarillado de Guapotá</li>
+                    <li>Línea de impulsión Bahondo – Valle de los Caballeros</li>
+                    <li>Canalización Bucaramanga</li>
+                </ul>
+            </div>
+
+            <!-- ELECTRIFICACIÓN -->
+            <div class="category-card level-committee">
+                <div class="category-header">
+                    <i class="fas fa-bolt"></i>
+                    <h2>Electrificación</h2>
+                    <span class="area-tag">Área</span>
+                    <span class="count-badge">2</span>
+                </div>
+                <ul class="project-list">
+                    <li>Electrificación Rural de Coromoro</li>
+                    <li>Electrificación Rural de Charalá</li>
+                </ul>
+            </div>
+
+            <!-- DESARROLLO RURAL -->
+            <div class="category-card level-committee">
+                <div class="category-header">
+                    <i class="fas fa-tractor"></i>
+                    <h2>Desarrollo Rural</h2>
+                    <span class="area-tag">Área</span>
+                    <span class="count-badge">7</span>
+                </div>
+                <ul class="project-list">
+                    <li>Centro de Acopio Agroempresarial de Onzaga</li>
+                    <li>Placas Huella de Cepitá</li>
+                    <li>Placas Huella de Molagavita</li>
+                    <li>Placas Huella de Concepción</li>
+                    <li>Placas Huella de Cerrito</li>
+                    <li>Placas Huella de Bucaramanga</li>
+                    <li>Placas Huella de Charta</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="location-section">
+            <div class="location-text">
+                <i class="fas fa-map-marked-alt"></i>
+                <div>
+                    <h3>SEGUIMIENTO EN SANTANDER</h3>
+                    <p>Ubicación de los principales proyectos vigilados por la VTC en el departamento de Santander.</p>
+                </div>
+            </div>
+            <div class="location-tag">
+                <i class="fas fa-crosshairs"></i> 61 proyectos · monitoreo activo
+            </div>
+        </div>
+
+        <div class="map-container">
+            <div id="map"></div>
+        </div>
+
+        <div class="footer-note">
+            <span><i class="fas fa-sync-alt"></i> Actualización permanente · VTC Santander</span>
+            <span><i class="fas fa-flag"></i> Gestión y seguimiento técnico</span>
+            <span><i class="fas fa-calendar-alt"></i> 2026</span>
+        </div>
+
+    </div>
+
+    <!-- ===== BOTÓN FLOTANTE ===== -->
+    <button class="floating" onclick="abrirModal()" aria-label="Solicitar acompañamiento">
+        <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+        </svg>
+    </button>
+
+    <!-- ===== MODAL ===== -->
+    <div class="modal" id="modal" role="dialog" aria-label="Formulario de solicitud">
+        <button class="close-modal" onclick="cerrarModal()" aria-label="Cerrar">✕</button>
+        <h3>Solicitar Acompañamiento</h3>
+        <form id="form-modal" onsubmit="event.preventDefault(); alert('Solicitud enviada (demo)'); cerrarModal();">
+            <input type="text" placeholder="Nombre completo" required />
+            <input type="email" placeholder="Correo electrónico" required />
+            <select required><option value="">Departamento</option><option>Santander</option><option>Boyacá</option><option>Norte de Santander</option><option>Cundinamarca</option><option>Antioquia</option></select>
+            <select required><option value="">Municipio</option><option>Bucaramanga</option><option>Piedecuesta</option><option>Girón</option><option>Zapatoca</option><option>Floridablanca</option></select>
+            <textarea rows="5" placeholder="Descripción del proyecto o necesidad de acompañamiento..." required></textarea>
+            <button type="submit">Enviar Solicitud</button>
+        </form>
+    </div>
+
+    <!-- ===== BOTTOM NAV ===== -->
+    <nav class="bottom-nav" role="navigation" aria-label="Menú inferior">
+        <a href="index.html#inicio" aria-label="Inicio">
+            <svg viewBox="0 0 24 24"><path d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
+            <span class="label">Inicio</span>
+        </a>
+        <a href="proyectosvigilados.html" class="active" aria-label="Proyectos Vigilados">
+            <svg viewBox="0 0 24 24"><path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+            <span class="label">Proyectos</span>
+        </a>
+        <a href="index.html#youtube" aria-label="Vigilando Ando">
+            <svg viewBox="0 0 24 24"><path d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
+            <span class="label">Vigilando</span>
+        </a>
+        <a href="index.html#mapa" aria-label="Mapa">
+            <svg viewBox="0 0 24 24"><path d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+            <span class="label">Mapa</span>
+        </a>
+    </nav>
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script>
+        function abrirModal() { document.getElementById('modal').classList.add('active'); }
+        function cerrarModal() { document.getElementById('modal').classList.remove('active'); }
+        document.addEventListener('keydown', function(e) { if(e.key==='Escape') cerrarModal(); });
+
+        function toggleDropdown(e) {
+            e.preventDefault();
+            const parent = e.currentTarget.closest('.dropdown');
+            const menu = parent.querySelector('.dropdown-menu');
+            document.querySelectorAll('.dropdown-menu.open').forEach(m => {
+                if (m !== menu) m.classList.remove('open');
+            });
+            menu.classList.toggle('open');
+        }
+
+        const hamburger = document.getElementById('hamburger');
+        const navMenu = document.getElementById('navMenu');
+        hamburger.addEventListener('click', function() {
+            this.classList.toggle('active');
+            navMenu.classList.toggle('open');
+            this.setAttribute('aria-expanded', this.classList.contains('active'));
+            if (!navMenu.classList.contains('open')) {
+                document.querySelectorAll('.dropdown-menu.open').forEach(m => m.classList.remove('open'));
+            }
+        });
+        document.querySelectorAll('#navMenu a').forEach(link => {
+            link.addEventListener('click', function() {
+                if (!this.closest('.dropdown') || this.closest('.dropdown-menu')) {
+                    hamburger.classList.remove('active');
+                    navMenu.classList.remove('open');
+                    hamburger.setAttribute('aria-expanded','false');
+                }
+            });
+        });
+
+        const bottomLinks = document.querySelectorAll('.bottom-nav a');
+        function activateLink(link) {
+            bottomLinks.forEach(el => el.classList.remove('active'));
+            link.classList.add('active');
+        }
+        bottomLinks.forEach(link => {
+            link.addEventListener('click', function(e) {
+                activateLink(this);
+            });
+            link.addEventListener('touchstart', function(e) {
+                activateLink(this);
+            });
+        });
+
+        document.addEventListener('DOMContentLoaded', function() {
+            if(typeof L==='undefined') return;
+
+            const yellowIcon = L.icon({
+                iconUrl: 'https://cdn.rawgit.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-yellow.png',
+                shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png',
+                iconSize: [25, 41],
+                iconAnchor: [12, 41],
+                popupAnchor: [1, -34],
+                shadowSize: [41, 41]
+            });
+
+            const map = L.map('map').setView([6.8,-73.2],9);
+            L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', { attribution:'&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>' }).addTo(map);
+
+            const proyectos = [
+                { nombre:'UTS Piedecuesta Fase III', lat:7.0861, lng:-73.0529, categoria:'Educación' },
+                { nombre:'Colegio El Guayabal', lat:7.1193, lng:-73.1227, categoria:'Educación' },
+                { nombre:'Colegio Integrado Los Santos', lat:7.1667, lng:-73.0833, categoria:'Educación' },
+                { nombre:'Colegio Pitiguo', lat:7.1193, lng:-73.1227, categoria:'Educación' },
+                { nombre:'Colegio Manuela Beltrán', lat:7.1193, lng:-73.1227, categoria:'Educación' },
+                { nombre:'Colegio La Laguna', lat:7.1193, lng:-73.1227, categoria:'Educación' },
+                { nombre:'Cancha La Marte', lat:7.1177, lng:-73.1064, categoria:'Deportiva' },
+                { nombre:'Cancha Cristo Rey', lat:7.1193, lng:-73.1227, categoria:'Deportiva' },
+                { nombre:'Villa Olímpica de Vélez', lat:6.0128, lng:-73.6744, categoria:'Deportiva' },
+                { nombre:'Villa Olímpica de Cimitarra', lat:6.3167, lng:-73.9500, categoria:'Deportiva' },
+                { nombre:'Estadio Municipal de Oiba', lat:6.2667, lng:-73.3000, categoria:'Deportiva' },
+                { nombre:'Escenarios deportivos de Bucaramanga', lat:7.1193, lng:-73.1227, categoria:'Deportiva' },
+                { nombre:'Hospital Regional de San Gil', lat:6.5597, lng:-73.1367, categoria:'Hospitalaria' },
+                { nombre:'Hospital San Pedro Claver de Mogotes', lat:6.4750, lng:-73.0167, categoria:'Hospitalaria' },
+                { nombre:'ESE Hospital Integrado San Roque', lat:6.5597, lng:-73.1367, categoria:'Hospitalaria' },
+                { nombre:'ESE Hospital Nuestra Señora de las Nieves', lat:6.5597, lng:-73.1367, categoria:'Hospitalaria' },
+                { nombre:'Girón – Zapatoca', lat:7.0677, lng:-73.1692, categoria:'Vial' },
+                { nombre:'Zapatoca – Barichara', lat:6.8153, lng:-73.2675, categoria:'Vial' },
+                { nombre:'Coromoro – Charalá', lat:6.2853, lng:-73.1444, categoria:'Vial' },
+                { nombre:'Bucaramanga – Matanza', lat:7.1193, lng:-73.1227, categoria:'Vial' },
+                { nombre:'Chima – Simacota', lat:6.3500, lng:-73.3667, categoria:'Vial' },
+                { nombre:'Contratación – Guadalupe', lat:6.2833, lng:-73.4667, categoria:'Vial' },
+                { nombre:'Mogotes – San Joaquín', lat:6.4750, lng:-73.0167, categoria:'Vial' },
+                { nombre:'Carrera Primera de San Gil', lat:6.5597, lng:-73.1367, categoria:'Vial' },
+                { nombre:'Vías urbanas de Güepsa', lat:6.0167, lng:-73.5667, categoria:'Vial' },
+                { nombre:'Vías terciarias de Curití', lat:6.6000, lng:-73.0667, categoria:'Vial' },
+                { nombre:'Puente Vehicular Mogotes', lat:6.4750, lng:-73.0167, categoria:'Puentes' },
+                { nombre:'Puente Pescaderito', lat:6.5597, lng:-73.1367, categoria:'Puentes' },
+                { nombre:'Puente Vehicular Confines', lat:6.3833, lng:-73.2333, categoria:'Puentes' },
+                { nombre:'Puente Metálico', lat:6.5597, lng:-73.1367, categoria:'Puentes' },
+                { nombre:'Parque Cultural Aldea Guane', lat:6.6356, lng:-73.2228, categoria:'Cultural' },
+                { nombre:'Casa de la Cultura de Contratación', lat:6.2833, lng:-73.4667, categoria:'Cultural' },
+                { nombre:'Parque Principal de Confines', lat:6.3833, lng:-73.2333, categoria:'Cultural' },
+                { nombre:'Sendero Las Gachas', lat:6.2500, lng:-73.4667, categoria:'Turística' },
+                { nombre:'Nuevo Sendero Las Gachas', lat:6.2500, lng:-73.4667, categoria:'Turística' },
+                { nombre:'Infraestructura Náutica de Santander', lat:7.1193, lng:-73.1227, categoria:'Turística' },
+                { nombre:'Aeropuerto Los Pozos', lat:7.1193, lng:-73.1227, categoria:'Turística' },
+                { nombre:'Palacio Municipal de Floridablanca', lat:7.0667, lng:-73.0833, categoria:'Institucional' },
+                { nombre:'Palacio Municipal de Aratoca', lat:6.6833, lng:-73.0167, categoria:'Institucional' },
+                { nombre:'Centro Administrativo Municipal de Guapotá', lat:6.3000, lng:-73.3000, categoria:'Institucional' },
+                { nombre:'Estación de Policía de Oiba', lat:6.2667, lng:-73.3000, categoria:'Institucional' },
+                { nombre:'CAI de Girón', lat:7.0677, lng:-73.1692, categoria:'Institucional' },
+                { nombre:'Estabilización Don Bosco', lat:7.1193, lng:-73.1227, categoria:'Gestión del Riesgo' },
+                { nombre:'Estabilización Nazareth', lat:7.1193, lng:-73.1227, categoria:'Gestión del Riesgo' },
+                { nombre:'Estabilización La Gloria', lat:7.1193, lng:-73.1227, categoria:'Gestión del Riesgo' },
+                { nombre:'Obras CDMB', lat:7.1193, lng:-73.1227, categoria:'Gestión del Riesgo' },
+                { nombre:'Mitigación Camilo Torres', lat:7.1193, lng:-73.1227, categoria:'Gestión del Riesgo' },
+                { nombre:'Mitigación Cuyanita', lat:7.1193, lng:-73.1227, categoria:'Gestión del Riesgo' },
+                { nombre:'Mitigación La Feria', lat:7.1193, lng:-73.1227, categoria:'Gestión del Riesgo' },
+                { nombre:'Acueducto y alcantarillado de Guapotá', lat:6.3000, lng:-73.3000, categoria:'Acueducto' },
+                { nombre:'Línea de impulsión Bahondo – Valle de los Caballeros', lat:7.1193, lng:-73.1227, categoria:'Acueducto' },
+                { nombre:'Canalización Bucaramanga', lat:7.1193, lng:-73.1227, categoria:'Acueducto' },
+                { nombre:'Electrificación Rural de Coromoro', lat:6.2833, lng:-73.0333, categoria:'Electrificación' },
+                { nombre:'Electrificación Rural de Charalá', lat:6.2853, lng:-73.1444, categoria:'Electrificación' },
+                { nombre:'Centro de Acopio Agroempresarial de Onzaga', lat:6.3500, lng:-73.0167, categoria:'Desarrollo Rural' },
+                { nombre:'Placas Huella de Cepitá', lat:6.7500, lng:-72.9667, categoria:'Desarrollo Rural' },
+                { nombre:'Placas Huella de Molagavita', lat:6.6667, lng:-72.8000, categoria:'Desarrollo Rural' },
+                { nombre:'Placas Huella de Concepción', lat:6.7667, lng:-72.7000, categoria:'Desarrollo Rural' },
+                { nombre:'Placas Huella de Cerrito', lat:6.8333, lng:-72.7000, categoria:'Desarrollo Rural' },
+                { nombre:'Placas Huella de Bucaramanga', lat:7.1193, lng:-73.1227, categoria:'Desarrollo Rural' },
+                { nombre:'Placas Huella de Charta', lat:7.2833, lng:-73.0000, categoria:'Desarrollo Rural' }
+            ];
+
+            const markers = [];
+            proyectos.forEach(p => {
+                const marker = L.marker([p.lat,p.lng], { icon: yellowIcon })
+                    .addTo(map)
+                    .bindPopup(`<strong>${p.nombre}</strong><br><em>${p.categoria}</em><br>Proyecto vigilado por VTC.`);
+                markers.push(marker);
+            });
+
+            if(markers.length>0) {
+                const group = L.featureGroup(markers);
+                map.fitBounds(group.getBounds(), { padding:[50,50], maxZoom:12 });
+            }
+        });
+    </script>
+</body>
+</html>

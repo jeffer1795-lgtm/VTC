@@ -1,0 +1,695 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <title>Organigrama Institucional | VTC</title>
+    <meta name="description" content="Conoce la estructura jerárquica y las áreas de la Veeduría Técnica Ciudadana." />
+    <link rel="icon" href="img/logo.png" type="image/png" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700;900&family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet" />
+
+    <style>
+        /* ========== RESET Y VARIABLES ========== */
+        * { margin:0; padding:0; box-sizing:border-box; }
+        :root {
+            --black:#080808; --black2:#111; --gray:#a0a0a0; --white:#fff;
+            --yellow:#FCD116; --blue:#003893; --red:#CE1126;
+            --font-display:'Space Grotesk',sans-serif; --font-body:'Inter',sans-serif;
+        }
+        html { scroll-behavior:smooth; -webkit-text-size-adjust:100%; }
+        body { font-family:var(--font-body); background:var(--black); color:var(--white); overflow-x:hidden; -webkit-font-smoothing:antialiased; -moz-osx-font-smoothing:grayscale; padding-bottom:80px; }
+
+        ::-webkit-scrollbar { width:6px; }
+        ::-webkit-scrollbar-track { background:var(--black); }
+        ::-webkit-scrollbar-thumb { background:var(--yellow); border-radius:10px; }
+
+        /* ========== HEADER ========== */
+        .nav {
+            position:fixed; top:0; left:0; width:100%; display:flex; justify-content:space-between; align-items:center;
+            padding:12px 5%; z-index:1000; background:rgba(0,0,0,0.5);
+            -webkit-backdrop-filter:blur(16px); backdrop-filter:blur(16px);
+            border-bottom:1px solid rgba(255,255,255,0.04); transition:0.3s;
+        }
+        .logo { display:flex; align-items:center; gap:10px; text-decoration:none; flex-shrink:0; }
+        .logo img { height:1.64rem; width:auto; display:block; -webkit-user-select:none; user-select:none; }
+        .logo-text { font-family:var(--font-display); font-size:1.64rem; font-weight:900; letter-spacing:-2px; line-height:1; }
+        .logo-text .v { color:var(--yellow); } .logo-text .t { color:var(--blue); } .logo-text .c { color:var(--red); }
+
+        .nav ul { display:flex; gap:30px; list-style:none; }
+        .nav a { color:var(--white); text-decoration:none; font-size:0.85rem; font-weight:500; letter-spacing:0.5px; transition:0.3s; position:relative; }
+        .nav a::after { content:''; position:absolute; bottom:-4px; left:0; width:0; height:2px; background:var(--yellow); transition:0.3s; }
+        .nav a:hover::after { width:100%; }
+        .nav ul li { position:relative; }
+        .nav ul li .dropdown-menu { display:none; position:absolute; top:100%; left:0; background:rgba(0,0,0,0.95); -webkit-backdrop-filter:blur(16px); backdrop-filter:blur(16px); border:1px solid rgba(255,255,255,0.06); border-radius:8px; padding:10px 0; min-width:220px; z-index:1001; list-style:none; flex-direction:column; gap:0; }
+        .nav ul li .dropdown-menu.open { display:flex; }
+        .nav ul li .dropdown-menu a { display:block; padding:10px 20px; color:var(--white); text-decoration:none; font-size:0.85rem; font-weight:500; transition:0.3s; white-space:nowrap; }
+        .nav ul li .dropdown-menu a:hover { background:rgba(255,255,255,0.05); color:var(--yellow); }
+        .nav ul li .dropdown-menu a::after { display:none; }
+
+        .hamburger { display:none; flex-direction:column; gap:4px; cursor:pointer; background:none; border:none; padding:6px; z-index:1002; }
+        .hamburger span { display:block; width:26px; height:2.5px; background:var(--white); border-radius:3px; transition:0.3s; -webkit-transform-origin:center; transform-origin:center; }
+        .hamburger.active span:nth-child(1) { -webkit-transform:rotate(45deg) translate(6px,6px); transform:rotate(45deg) translate(6px,6px); }
+        .hamburger.active span:nth-child(2) { opacity:0; }
+        .hamburger.active span:nth-child(3) { -webkit-transform:rotate(-45deg) translate(6px,-6px); transform:rotate(-45deg) translate(6px,-6px); }
+
+        @media (max-width:700px) {
+            .hamburger { display:flex; }
+            .nav { padding:8px 5%; }
+            .logo img { height:1.33rem; }
+            .logo-text { font-size:1.33rem; }
+            .logo { gap:6px; }
+            .hamburger span { width:22px; height:2px; }
+
+            .nav ul {
+                position:fixed; top:0; right:-100%; width:80%; max-width:320px; height:100vh;
+                background:rgba(0,0,0,0.98); -webkit-backdrop-filter:blur(16px); backdrop-filter:blur(16px);
+                flex-direction:column; justify-content:flex-start; align-items:stretch;
+                gap:8px; padding:80px 16px 30px;
+                transition:0.4s cubic-bezier(0.23,1,0.32,1);
+                border-left:1px solid rgba(255,255,255,0.04); overflow-y:auto; z-index:1001;
+            }
+            .nav ul.open { right:0; }
+            .nav ul li { width:100%; }
+
+            .nav ul li .dropdown-menu {
+                display:none !important;
+                position:static !important;
+                background:rgba(255,255,255,0.05) !important;
+                border:none !important;
+                border-radius:0 !important;
+                padding:4px 0 4px 16px !important;
+                margin-top:4px !important;
+                flex-direction:column !important;
+                gap:4px !important;
+                width:100% !important;
+                min-width:unset !important;
+                box-sizing:border-box !important;
+                height:auto !important;
+                min-height:unset !important;
+                overflow:hidden !important;
+            }
+            .nav ul li .dropdown-menu.open {
+                display:flex !important;
+            }
+            .nav ul li .dropdown-menu a {
+                white-space:normal !important;
+                font-size:0.85rem !important;
+                padding:6px 12px !important;
+                text-align:left !important;
+                display:block !important;
+                box-sizing:border-box !important;
+                width:100% !important;
+                color:#ccc !important;
+                line-height:1.4 !important;
+            }
+            .nav ul li .dropdown-menu a:hover {
+                color:#FCD116 !important;
+                background:rgba(255,255,255,0.05) !important;
+            }
+            .nav ul li .dropdown > a::after { display:none !important; }
+            .nav ul li .dropdown > a {
+                font-weight:600 !important;
+                color:#FCD116 !important;
+                cursor:pointer !important;
+            }
+        }
+
+        /* ========== BOTÓN FLOTANTE ========== */
+        .floating { position:fixed; right:20px; bottom:100px; width:64px; height:64px; border-radius:50%; background:var(--yellow); border:none; cursor:pointer; z-index:999; display:flex; align-items:center; justify-content:center; box-shadow:0 8px 25px rgba(252,209,22,0.3); transition:0.3s; }
+        .floating:hover { transform:scale(1.08); box-shadow:0 12px 35px rgba(252,209,22,0.5); }
+        .floating svg { stroke:white; width:32px; height:32px; }
+        @media (max-width:700px) { .floating { right:16px; bottom:100px; width:56px; height:56px; } .floating svg { width:28px; height:28px; } }
+
+        /* ========== BOTTOM NAV ========== */
+        .bottom-nav { display:none; position:fixed; bottom:0; left:0; width:100%; background:rgba(0,0,0,0.92); -webkit-backdrop-filter:blur(12px); backdrop-filter:blur(12px); border-top:1px solid rgba(255,255,255,0.06); padding:10px 0 14px; z-index:999; justify-content:space-around; align-items:center; }
+        .bottom-nav a { display:flex; flex-direction:column; align-items:center; text-decoration:none; color:#888; font-size:0.55rem; font-weight:500; transition:0.3s; gap:4px; padding:6px 12px; border-radius:10px; min-width:56px; position:relative; -webkit-tap-highlight-color:transparent; }
+        .bottom-nav a svg { width:28px; height:28px; stroke:#888; fill:none; stroke-width:2; stroke-linecap:round; stroke-linejoin:round; transition:0.3s; }
+        .bottom-nav a .label { font-size:0.5rem; letter-spacing:0.3px; text-transform:uppercase; color:#888; transition:0.3s; }
+        .bottom-nav a.active svg { stroke:var(--yellow); filter:drop-shadow(0 0 10px rgba(252,209,22,0.4)); }
+        .bottom-nav a.active .label { color:var(--yellow); }
+        .bottom-nav a.active::before { content:''; position:absolute; top:-2px; left:50%; transform:translateX(-50%); width:20px; height:3px; background:var(--yellow); border-radius:4px; box-shadow:0 0 12px rgba(252,209,22,0.5); }
+        @media (max-width:700px) { .bottom-nav { display:flex; } }
+
+        /* ========== MODAL ========== */
+        .modal { position:fixed; top:0; right:-100%; width:480px; height:100%; background:#111; padding:50px 40px; transition:0.5s cubic-bezier(0.23,1,0.32,1); z-index:9999; overflow-y:auto; border-left:1px solid rgba(255,255,255,0.05); }
+        .modal.active { right:0; }
+        .modal h3 { font-size:2.2rem; margin-bottom:30px; font-family:var(--font-display); }
+        .modal input, .modal select, .modal textarea { width:100%; padding:16px 18px; background:#1b1b1b; border:1px solid #2a2a2a; color:var(--white); margin-bottom:18px; border-radius:6px; font-family:var(--font-body); font-size:0.95rem; transition:0.3s; }
+        .modal input:focus, .modal select:focus, .modal textarea:focus { border-color:var(--yellow); outline:none; background:#222; }
+        .modal button { width:100%; padding:18px; background:var(--yellow); border:none; font-weight:700; font-size:1rem; cursor:pointer; border-radius:6px; color:var(--black); transition:0.3s; }
+        .modal button:hover { background:#e0b000; -webkit-transform:scale(1.01); transform:scale(1.01); }
+        .modal .close-modal { position:absolute; top:20px; right:25px; font-size:2rem; cursor:pointer; color:var(--gray); transition:0.3s; background:none; border:none; }
+        .modal .close-modal:hover { color:var(--white); -webkit-transform:rotate(90deg); transform:rotate(90deg); }
+        @media (max-width:700px) { .modal { width:100%; padding:30px 20px; } }
+
+        /* ========== CONTENIDO ORGANIGRAMA ========== */
+        .container {
+            max-width:1300px;
+            width:100%;
+            margin:80px auto 40px;
+            background:#111;
+            border-radius:32px;
+            padding:2.5rem 2.2rem;
+            box-shadow:0 20px 60px rgba(0,0,0,0.8);
+        }
+
+        .header-org {
+            text-align:center;
+            margin-bottom:2.5rem;
+            border-bottom:4px solid #FCD116;
+            padding-bottom:1.5rem;
+        }
+        .header-org h1 {
+            font-family:var(--font-display);
+            font-size:2.5rem;
+            font-weight:900;
+            color:#FCD116;
+            letter-spacing:2px;
+            text-transform:uppercase;
+            margin-bottom:0.25rem;
+        }
+        .header-org h2 {
+            font-family:var(--font-body);
+            font-size:1.2rem;
+            font-weight:400;
+            color:#a0a0a0;
+            letter-spacing:1px;
+        }
+
+        .level { margin:0.5rem 0 0.25rem; text-align:center; }
+        .level-title {
+            background:#FCD116;
+            color:#003893;
+            font-family:var(--font-display);
+            font-weight:700;
+            font-size:1.1rem;
+            text-transform:uppercase;
+            letter-spacing:1.5px;
+            padding:0.6rem 1.5rem;
+            border-radius:40px;
+            display:inline-block;
+            margin-bottom:1.2rem;
+            box-shadow:0 4px 12px rgba(252,209,22,0.3);
+        }
+        .level-title.secundario {
+            background:#FCD116;
+            color:#003893;
+        }
+
+        .cards-row {
+            display:flex;
+            flex-wrap:wrap;
+            justify-content:center;
+            gap:1.5rem;
+        }
+        .cards-row.multi { gap:1.2rem; }
+
+        .card {
+            background:#1a1a1a;
+            border-radius:20px;
+            box-shadow:0 8px 24px rgba(0,0,0,0.4);
+            border:1px solid rgba(255,255,255,0.06);
+            padding:1.2rem 1.5rem;
+            flex:0 1 auto;
+            min-width:220px;
+            max-width:320px;
+            transition:transform 0.2s ease, box-shadow 0.2s ease;
+            position:relative;
+            text-align:left;
+        }
+        .card:hover {
+            transform:translateY(-4px);
+            box-shadow:0 16px 40px rgba(252,209,22,0.08);
+            border-color:rgba(252,209,22,0.2);
+        }
+        .card.directiva { min-width:260px; max-width:360px; border-top:6px solid #FCD116; }
+        .card.ejecutiva { min-width:300px; max-width:450px; border-top:6px solid #003893; }
+        .card.oficina { min-width:200px; max-width:270px; border-top:4px solid #CE1126; padding:1rem 1.2rem; }
+        .card.comite { min-width:260px; max-width:500px; border-top:6px solid #FCD116; }
+
+        .card h3 {
+            font-family:var(--font-display);
+            font-size:1.1rem;
+            font-weight:700;
+            color:#FCD116;
+            margin-bottom:0.2rem;
+            line-height:1.2;
+        }
+        .card h4 {
+            font-family:var(--font-display);
+            font-size:0.95rem;
+            font-weight:700;
+            color:#FCD116;
+            margin-bottom:0.4rem;
+            line-height:1.3;
+        }
+        .card .cargo {
+            font-weight:600;
+            color:#a0a0a0;
+            font-size:0.95rem;
+            margin-bottom:0.1rem;
+        }
+        .card .subcargo {
+            font-size:0.85rem;
+            color:#888;
+            margin-bottom:0.6rem;
+        }
+        .card .matricula {
+            font-size:0.8rem;
+            color:#a0a0a0;
+            background:rgba(255,255,255,0.05);
+            padding:0.2rem 0.6rem;
+            border-radius:20px;
+            display:inline-block;
+            margin-bottom:0.6rem;
+        }
+        .card ul {
+            list-style:none;
+            padding:0;
+            margin:0.4rem 0 0;
+        }
+        .card ul li {
+            font-size:0.82rem;
+            color:#c0c0c0;
+            padding:0.2rem 0 0.2rem 1.3rem;
+            position:relative;
+            line-height:1.4;
+        }
+        .card ul li::before {
+            content:"▸";
+            position:absolute;
+            left:0;
+            color:#FCD116;
+            font-weight:700;
+        }
+        .card .areas-label {
+            font-weight:600;
+            font-size:0.8rem;
+            color:#a0a0a0;
+            margin-top:0.5rem;
+            margin-bottom:0.1rem;
+            text-transform:uppercase;
+            letter-spacing:0.5px;
+        }
+        .card .areas-list {
+            display:flex;
+            flex-wrap:wrap;
+            gap:0.2rem 0.8rem;
+            margin-top:0.2rem;
+        }
+        .card .areas-list span {
+            font-size:0.75rem;
+            background:rgba(255,255,255,0.05);
+            padding:0.1rem 0.6rem;
+            border-radius:16px;
+            color:#c0c0c0;
+            white-space:nowrap;
+        }
+
+        .arrow {
+            text-align:center;
+            font-size:2.8rem;
+            color:#FCD116;
+            line-height:0.8;
+            margin:0.5rem 0 0.8rem;
+            opacity:0.9;
+        }
+
+        .separator {
+            border-top:2px dashed rgba(255,255,255,0.1);
+            margin:2rem 0 1.5rem;
+            width:60%;
+            margin-left:auto;
+            margin-right:auto;
+        }
+
+        .divider-yellow {
+            border-top:4px solid #FCD116;
+            margin:2.5rem 0 1.5rem 0;
+            width:100%;
+        }
+        .img-container {
+            margin-top:1.5rem;
+            width:100%;
+            display:flex;
+            justify-content:center;
+        }
+        .img-container img {
+            width:100%;
+            max-width:900px;
+            height:auto;
+            display:block;
+            border-radius:16px;
+            box-shadow:0 8px 24px rgba(0,0,0,0.5);
+            border:1px solid rgba(255,255,255,0.06);
+        }
+
+        .back-link {
+            display:inline-block;
+            margin-top:2rem;
+            color:#FCD116;
+            text-decoration:none;
+            font-weight:600;
+            border-bottom:2px solid #FCD116;
+            padding-bottom:4px;
+            transition:0.3s;
+        }
+        .back-link:hover { color:#fff; border-color:#fff; }
+
+        @media (max-width:700px) {
+            .container { padding:1rem 0.8rem; border-radius:20px; margin:70px auto 30px; }
+            .header-org h1 { font-size:1.6rem; }
+            .header-org h2 { font-size:1.1rem; }
+            .card { min-width:180px; max-width:280px; padding:1rem; }
+            .card.directiva, .card.ejecutiva, .card.comite { min-width:200px; max-width:320px; }
+            .card.oficina { min-width:160px; max-width:240px; }
+            .cards-row { gap:1rem; }
+            .level-title { font-size:0.9rem; padding:0.4rem 1.2rem; }
+            .separator { width:80%; }
+            .arrow { font-size:2.2rem; }
+            body { padding-bottom:80px; }
+        }
+        @media (max-width:480px) {
+            .card { min-width:100%; max-width:100%; }
+            .card.directiva, .card.ejecutiva, .card.comite, .card.oficina { min-width:100%; max-width:100%; }
+            .header-org h1 { font-size:1.3rem; }
+            .arrow { font-size:2rem; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ===== HEADER ===== -->
+    <nav class="nav" role="navigation" aria-label="Menú principal">
+        <a href="index.html" class="logo" aria-label="VTC - Inicio">
+            <img src="img/logo.png" alt="Logo VTC" loading="lazy" />
+            <span class="logo-text">
+                <span class="v">V</span><span class="t">T</span><span class="c">C</span>
+            </span>
+        </a>
+        <button class="hamburger" id="hamburger" aria-label="Abrir menú" aria-expanded="false">
+            <span></span><span></span><span></span>
+        </button>
+        <ul id="navMenu">
+            <li><a href="index.html#inicio">Inicio</a></li>
+            <li class="dropdown">
+                <a href="javascript:void(0)" onclick="toggleDropdown(event)">Nosotros ▾</a>
+                <ul class="dropdown-menu">
+                    <li><a href="quienes-somos.html">Quiénes Somos</a></li>
+                    <li><a href="organigrama.html">Organigrama Institucional</a></li>
+                </ul>
+            </li>
+            <li><a href="index.html#proyectos">Proyectos</a></li>
+            <li><a href="index.html#youtube">Vigilando Ando</a></li>
+            <li><a href="index.html#mapa">Mapa</a></li>
+            <li><a href="proyectosvigilados.html" target="_blank">Proyectos Vigilados</a></li>
+            <li><a href="index.html#contacto">Contacto</a></li>
+        </ul>
+    </nav>
+
+    <!-- ===== CONTENIDO ===== -->
+    <div class="container">
+
+        <div class="header-org">
+            <h1>ORGANIGRAMA INSTITUCIONAL</h1>
+            <h2>Veeduría Técnica Ciudadana (VTC)</h2>
+        </div>
+
+        <!-- NIVEL DIRECTIVO -->
+        <div class="level">
+            <div class="level-title">Nivel Directivo</div>
+            <div class="cards-row">
+                <div class="card directiva">
+                    <h3>ROBINSON OLARTE</h3>
+                    <div class="cargo">Presidente</div>
+                    <div class="subcargo">Fundador de la Veeduría Técnica Ciudadana</div>
+                    <ul>
+                        <li>Representación institucional</li>
+                        <li>Direccionamiento estratégico</li>
+                        <li>Relaciones institucionales</li>
+                        <li>Coordinación general de la veeduría</li>
+                        <li>Fortalecimiento de la participación ciudadana</li>
+                        <li>Gestión de alianzas y cooperación</li>
+                    </ul>
+                </div>
+                <div class="card directiva">
+                    <h3>MARÍA AZUCENA CRUZ</h3>
+                    <div class="cargo">Vicepresidenta</div>
+                    <div class="subcargo">Fundadora de la Veeduría Técnica Ciudadana</div>
+                    <ul>
+                        <li>Apoyo a la dirección institucional</li>
+                        <li>Coordinación comunitaria</li>
+                        <li>Participación ciudadana</li>
+                        <li>Seguimiento a iniciativas sociales</li>
+                        <li>Relacionamiento con organizaciones ciudadanas</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="arrow">⬇</div>
+
+        <!-- NIVEL EJECUTIVO -->
+        <div class="level">
+            <div class="level-title">Nivel Ejecutivo</div>
+            <div class="cards-row">
+                <div class="card ejecutiva">
+                    <h3>ING. JEFERSON JEAN CARLO OLARTE LANCHEROS</h3>
+                    <div class="cargo">Director de Procesos y Supervisión Técnica</div>
+                    <div class="matricula">Ingeniero Civil – M.P. No. 151037-0602160 STD</div>
+                    <ul>
+                        <li>Dirección técnica institucional</li>
+                        <li>Supervisión técnica de proyectos</li>
+                        <li>Planeación de visitas de campo</li>
+                        <li>Elaboración de informes técnicos</li>
+                        <li>Coordinación de procesos de seguimiento</li>
+                        <li>Control de calidad técnica documental</li>
+                        <li>Gestión de observaciones y hallazgos</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="arrow">⬇</div>
+
+        <!-- OFICINAS Y DEPARTAMENTOS -->
+        <div class="level">
+            <div class="level-title">Oficinas y Departamentos</div>
+            <div class="cards-row multi">
+                <div class="card oficina">
+                    <h4>OFICINA DE PROCESOS TÉCNICOS</h4>
+                    <ul>
+                        <li>Seguimiento de obras públicas</li>
+                        <li>Inspecciones técnicas</li>
+                        <li>Verificación de cantidades de obra</li>
+                        <li>Seguimiento de personal contractual</li>
+                        <li>Control de cronogramas</li>
+                        <li>Elaboración de conceptos técnicos</li>
+                    </ul>
+                    <div class="areas-label">Áreas de seguimiento</div>
+                    <div class="areas-list">
+                        <span>Vial</span><span>Educativa</span><span>Hospitalaria</span>
+                        <span>Deportiva</span><span>Institucional</span><span>Cultural</span>
+                        <span>Turística</span><span>Servicios públicos</span>
+                    </div>
+                </div>
+
+                <div class="card oficina">
+                    <h4>OFICINA DE PROCESOS JURÍDICOS Y CONTRACTUALES</h4>
+                    <ul>
+                        <li>Derechos de petición</li>
+                        <li>Seguimiento contractual</li>
+                        <li>Solicitudes de información</li>
+                        <li>Revisión normativa</li>
+                        <li>Seguimiento a SECOP</li>
+                        <li>Control de obligaciones contractuales</li>
+                        <li>Vigilancia de procesos de contratación estatal</li>
+                    </ul>
+                </div>
+
+                <div class="card oficina">
+                    <h4>OFICINA DE PARTICIPACIÓN CIUDADANA Y CONTROL SOCIAL</h4>
+                    <ul>
+                        <li>Atención a la ciudadanía</li>
+                        <li>Recepción de denuncias</li>
+                        <li>Capacitación comunitaria</li>
+                        <li>Acompañamiento a organizaciones sociales</li>
+                        <li>Promoción del control social</li>
+                    </ul>
+                </div>
+
+                <div class="card oficina">
+                    <h4>OFICINA DE TRANSPARENCIA Y ACCESO A LA INFORMACIÓN</h4>
+                    <ul>
+                        <li>Gestión documental</li>
+                        <li>Acceso a la información pública</li>
+                        <li>Publicación de informes</li>
+                        <li>Seguimiento Ley 1712 de 2014</li>
+                        <li>Consolidación de bases de datos</li>
+                    </ul>
+                </div>
+
+                <div class="card oficina">
+                    <h4>OFICINA DE COMUNICACIONES Y MEDIOS</h4>
+                    <ul>
+                        <li>Canal de YouTube "Vigilando Ando"</li>
+                        <li>Producción audiovisual</li>
+                        <li>Registro fotográfico</li>
+                        <li>Comunicaciones institucionales</li>
+                        <li>Redes sociales</li>
+                        <li>Difusión de informes y resultados</li>
+                    </ul>
+                </div>
+
+                <div class="card oficina">
+                    <h4>DEPARTAMENTO TIC</h4>
+                    <ul>
+                        <li>Plataforma web VTC</li>
+                        <li>Sistemas de información</li>
+                        <li>Bases de datos</li>
+                        <li>Soporte tecnológico</li>
+                        <li>Seguridad informática</li>
+                        <li>Automatización de procesos</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="arrow">⬇</div>
+
+        <div class="separator"></div>
+
+        <!-- COMITÉ TÉCNICO CONSULTIVO -->
+        <div class="level">
+            <div class="level-title secundario">Comité Técnico Consultivo</div>
+            <div class="cards-row">
+                <div class="card comite">
+                    <p style="font-weight:600; color:#FCD116; margin-bottom:0.5rem;">Integrado por profesionales aliados en:</p>
+                    <div style="display:flex; flex-wrap:wrap; gap:0.3rem 1.2rem; justify-content:center;">
+                        <span style="font-size:0.9rem; background:rgba(255,255,255,0.05); padding:0.15rem 0.8rem; border-radius:20px; color:#c0c0c0;">Ingeniería Civil</span>
+                        <span style="font-size:0.9rem; background:rgba(255,255,255,0.05); padding:0.15rem 0.8rem; border-radius:20px; color:#c0c0c0;">Arquitectura</span>
+                        <span style="font-size:0.9rem; background:rgba(255,255,255,0.05); padding:0.15rem 0.8rem; border-radius:20px; color:#c0c0c0;">Ingeniería Eléctrica</span>
+                        <span style="font-size:0.9rem; background:rgba(255,255,255,0.05); padding:0.15rem 0.8rem; border-radius:20px; color:#c0c0c0;">Ingeniería Ambiental</span>
+                        <span style="font-size:0.9rem; background:rgba(255,255,255,0.05); padding:0.15rem 0.8rem; border-radius:20px; color:#c0c0c0;">Seguridad y Salud en el Trabajo</span>
+                        <span style="font-size:0.9rem; background:rgba(255,255,255,0.05); padding:0.15rem 0.8rem; border-radius:20px; color:#c0c0c0;">Derecho Administrativo</span>
+                        <span style="font-size:0.9rem; background:rgba(255,255,255,0.05); padding:0.15rem 0.8rem; border-radius:20px; color:#c0c0c0;">Contratación Estatal</span>
+                        <span style="font-size:0.9rem; background:rgba(255,255,255,0.05); padding:0.15rem 0.8rem; border-radius:20px; color:#c0c0c0;">Interventoría</span>
+                        <span style="font-size:0.9rem; background:rgba(255,255,255,0.05); padding:0.15rem 0.8rem; border-radius:20px; color:#c0c0c0;">Auditoría y Control</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="divider-yellow"></div>
+
+        <div class="level" style="margin-top:0;">
+            <div class="level-title">ESTRUCTURA JERÁRQUICA</div>
+        </div>
+
+        <div class="img-container">
+            <img src="img/organigrama.jpg" alt="Organigrama VTC" loading="lazy" />
+        </div>
+
+        <div style="text-align:center; margin-top:2rem;">
+            <a href="index.html" class="back-link">← Volver a la página principal</a>
+        </div>
+
+    </div>
+
+    <!-- ===== BOTÓN FLOTANTE ===== -->
+    <button class="floating" onclick="abrirModal()" aria-label="Solicitar acompañamiento">
+        <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+        </svg>
+    </button>
+
+    <!-- ===== MODAL ===== -->
+    <div class="modal" id="modal" role="dialog" aria-label="Formulario de solicitud">
+        <button class="close-modal" onclick="cerrarModal()" aria-label="Cerrar">✕</button>
+        <h3>Solicitar Acompañamiento</h3>
+        <form id="form-modal" onsubmit="event.preventDefault(); alert('Solicitud enviada (demo)'); cerrarModal();">
+            <input type="text" placeholder="Nombre completo" required />
+            <input type="email" placeholder="Correo electrónico" required />
+            <select required><option value="">Departamento</option><option>Santander</option><option>Boyacá</option><option>Norte de Santander</option><option>Cundinamarca</option><option>Antioquia</option></select>
+            <select required><option value="">Municipio</option><option>Bucaramanga</option><option>Piedecuesta</option><option>Girón</option><option>Zapatoca</option><option>Floridablanca</option></select>
+            <textarea rows="5" placeholder="Descripción del proyecto o necesidad de acompañamiento..." required></textarea>
+            <button type="submit">Enviar Solicitud</button>
+        </form>
+    </div>
+
+    <!-- ===== BOTTOM NAV ===== -->
+    <nav class="bottom-nav" role="navigation" aria-label="Menú inferior">
+        <a href="index.html#inicio" class="active" aria-label="Inicio">
+            <svg viewBox="0 0 24 24"><path d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
+            <span class="label">Inicio</span>
+        </a>
+        <a href="proyectosvigilados.html" aria-label="Proyectos Vigilados">
+            <svg viewBox="0 0 24 24"><path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+            <span class="label">Proyectos</span>
+        </a>
+        <a href="index.html#youtube" aria-label="Vigilando Ando">
+            <svg viewBox="0 0 24 24"><path d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
+            <span class="label">Vigilando</span>
+        </a>
+        <a href="index.html#mapa" aria-label="Mapa">
+            <svg viewBox="0 0 24 24"><path d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+            <span class="label">Mapa</span>
+        </a>
+    </nav>
+
+    <!-- ===== SCRIPTS ===== -->
+    <script>
+        function abrirModal() { document.getElementById('modal').classList.add('active'); }
+        function cerrarModal() { document.getElementById('modal').classList.remove('active'); }
+        document.addEventListener('keydown', function(e) { if(e.key==='Escape') cerrarModal(); });
+
+        function toggleDropdown(e) {
+            e.preventDefault();
+            const parent = e.currentTarget.closest('.dropdown');
+            const menu = parent.querySelector('.dropdown-menu');
+            document.querySelectorAll('.dropdown-menu.open').forEach(m => {
+                if (m !== menu) m.classList.remove('open');
+            });
+            menu.classList.toggle('open');
+        }
+
+        const hamburger = document.getElementById('hamburger');
+        const navMenu = document.getElementById('navMenu');
+        hamburger.addEventListener('click', function() {
+            this.classList.toggle('active');
+            navMenu.classList.toggle('open');
+            this.setAttribute('aria-expanded', this.classList.contains('active'));
+            if (!navMenu.classList.contains('open')) {
+                document.querySelectorAll('.dropdown-menu.open').forEach(m => m.classList.remove('open'));
+            }
+        });
+        document.querySelectorAll('#navMenu a').forEach(link => {
+            link.addEventListener('click', function() {
+                if (!this.closest('.dropdown') || this.closest('.dropdown-menu')) {
+                    hamburger.classList.remove('active');
+                    navMenu.classList.remove('open');
+                    hamburger.setAttribute('aria-expanded','false');
+                }
+            });
+        });
+
+        const bottomLinks = document.querySelectorAll('.bottom-nav a');
+        function activateLink(link) {
+            bottomLinks.forEach(el => el.classList.remove('active'));
+            link.classList.add('active');
+        }
+        bottomLinks.forEach(link => {
+            link.addEventListener('click', function(e) {
+                activateLink(this);
+            });
+            link.addEventListener('touchstart', function(e) {
+                activateLink(this);
+            });
+        });
+    </script>
+</body>
+</html>
