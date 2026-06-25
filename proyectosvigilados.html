@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes" />
+    <title>Proyectos Vigilados | VTC</title>
+    <meta name="description" content="Listado completo de proyectos vigilados por la VTC en Santander y Colombia." />
+    <link rel="icon" href="img/logo.png" type="image/png" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700;900&family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+
+    <style>
+        * { margin:0; padding:0; box-sizing:border-box; }
+        :root {
+            --black:#080808; --black2:#111; --gray:#a0a0a0; --white:#fff;
+            --yellow:#FCD116; --blue:#003893; --red:#CE1126;
+            --font-display:'Space Grotesk',sans-serif; --font-body:'Inter',sans-serif;
+        }
+        html { scroll-behavior:smooth; -webkit-text-size-adjust:100%; }
+        body { font-family:var(--font-body); background:var(--black); color:var(--white); padding:80px 8% 40px; -webkit-font-smoothing:antialiased; }
+        h1 { font-family:var(--font-display); font-size:4rem; font-weight:900; letter-spacing:-0.02em; margin-bottom:10px; border-left:6px solid var(--yellow); padding-left:25px; }
+        .subtitle { font-size:1.2rem; color:var(--gray); margin-bottom:50px; border-left:6px solid var(--yellow); padding-left:25px; }
+        .categoria { margin-top:45px; margin-bottom:15px; }
+        .categoria h2 { font-family:var(--font-display); font-size:2.2rem; font-weight:700; color:var(--yellow); border-bottom:2px solid rgba(252,209,22,0.2); padding-bottom:8px; display:inline-block; }
+        .categoria ul { list-style:none; padding-left:10px; margin-top:12px; }
+        .categoria ul li { font-size:1.05rem; color:#ddd; padding:6px 0; border-bottom:1px solid rgba(255,255,255,0.03); padding-left:25px; position:relative; }
+        .categoria ul li::before { content:"•"; color:var(--yellow); font-size:1.5rem; position:absolute; left:0; top:2px; }
+        .map-container { margin-top:60px; border-radius:8px; overflow:hidden; border:1px solid rgba(255,255,255,0.06); height:450px; width:100%; background:#1a1a1a; }
+        #map { height:100%; width:100%; }
+        .back-link { display:inline-block; margin-top:50px; color:var(--yellow); text-decoration:none; font-weight:600; border-bottom:2px solid var(--yellow); padding-bottom:4px; transition:0.3s; }
+        .back-link:hover { color:#fff; border-color:#fff; }
+        .leaflet-control-zoom { border:none !important; }
+        .leaflet-control-zoom a { background:#222 !important; color:white !important; border:1px solid #333 !important; }
+        .leaflet-popup-content-wrapper { background:#111 !important; color:white !important; border-radius:8px !important; }
+        .leaflet-popup-tip { background:#111 !important; }
+
+        /* ===== HEADER ===== */
+        .nav { position:fixed; top:0; left:0; width:100%; display:flex; justify-content:space-between; align-items:center; padding:20px 8%; z-index:1000; background:rgba(0,0,0,0.5); -webkit-backdrop-filter:blur(16px); backdrop-filter:blur(16px); border-bottom:1px solid rgba(255,255,255,0.04); transition:0.3s; }
+        .logo { display:flex; align-items:center; gap:16px; text-decoration:none; flex-shrink:0; }
+        .logo img { height:2.25rem; width:auto; display:block; -webkit-user-select:none; user-select:none; }
+        .logo-text { font-family:var(--font-display); font-size:2.25rem; font-weight:900; letter-spacing:-2px; line-height:1; }
+        .logo-text .v { color:var(--yellow); } .logo-text .t { color:var(--blue); } .logo-text .c { color:var(--red); }
+        .nav ul { display:flex; gap:30px; list-style:none; }
+        .nav a { color:var(--white); text-decoration:none; font-size:0.85rem; font-weight:500; letter-spacing:0.5px; transition:0.3s; position:relative; }
+        .nav a::after { content:''; position:absolute; bottom:-4px; left:0; width:0; height:2px; background:var(--yellow); transition:0.3s; }
+        .nav a:hover::after { width:100%; }
+        .nav ul li { position:relative; }
+        .nav ul li .dropdown-menu { display:none; position:absolute; top:100%; left:0; background:rgba(0,0,0,0.95); -webkit-backdrop-filter:blur(16px); backdrop-filter:blur(16px); border:1px solid rgba(255,255,255,0.06); border-radius:8px; padding:10px 0; min-width:220px; z-index:1001; list-style:none; flex-direction:column; gap:0; }
+        .nav ul li .dropdown-menu.open { display:flex; }
+        .nav ul li .dropdown-menu li { padding:0; }
+        .nav ul li .dropdown-menu a { display:block; padding:10px 20px; color:var(--white); text-decoration:none; font-size:0.85rem; font-weight:500; transition:0.3s; white-space:nowrap; }
+        .nav ul li .dropdown-menu a:hover { background:rgba(255,255,255,0.05); color:var(--yellow); }
+        .nav ul li .dropdown-menu a::after { display:none; }
+        .hamburger { display:none; flex-direction:column; gap:5px; cursor:pointer; background:none; border:none; padding:8px; z-index:1002; }
+        .hamburger span { display:block; width:28px; height:3px; background:var(--white); border-radius:3px; transition:0.3s; -webkit-transform-origin:center; transform-origin:center; }
+        .hamburger.active span:nth-child(1) { -webkit-transform:rotate(45deg) translate(6px,6px); transform:rotate(45deg) translate(6px,6px); }
+        .hamburger.active span:nth-child(2) { opacity:0; }
+        .hamburger.active span:nth-child(3) { -webkit-transform:rotate(-45deg) translate(6px,-6px); transform:rotate(-45deg) translate(6px,-6px); }
+        @media (max-width:700px) {
+            .hamburger { display:flex; }
+            .nav ul { position:fixed; top:0; right:-100%; width:80%; max-width:320px; height:100vh; background:rgba(0,0,0,0.98); -webkit-backdrop-filter:blur(16px); backdrop-filter:blur(16px); flex-direction:column; justify-content:center; align-items:center; gap:20px; padding:40px 20px; transition:0.4s cubic-bezier(0.23,1,0.32,1); border-left:1px solid rgba(255,255,255,0.04); overflow-y:auto; z-index:1001; }
+            .nav ul.open { right:0; }
+            .nav ul li .dropdown-menu { position:static; background:rgba(255,255,255,0.03); border:none; border-radius:0; padding:5px 0 5px 20px; min-width:unset; }
+            .nav ul li .dropdown-menu a { white-space:normal; font-size:0.8rem; padding:8px 15px; }
+            body { padding:80px 5% 30px; }
+            h1 { font-size:2.8rem; padding-left:15px; }
+            .subtitle { font-size:1rem; padding-left:15px; }
+            .categoria h2 { font-size:1.8rem; }
+            .nav { padding:15px 5%; }
+            .logo img { height:1.8rem; }
+            .logo-text { font-size:1.8rem; }
+        }
+        @supports not (aspect-ratio:16/9) {
+            .video-thumbnail { height:0; padding-bottom:56.25%; position:relative; }
+            .video-thumbnail img { position:absolute; top:0; left:0; width:100%; height:100%; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ===== HEADER ===== -->
+    <nav class="nav" role="navigation" aria-label="Menú principal">
+        <a href="index.html" class="logo" aria-label="VTC - Inicio">
+            <img src="img/logo.png" alt="Logo VTC" loading="lazy" />
+            <span class="logo-text"><span class="v">V</span><span class="t">T</span><span class="c">C</span></span>
+        </a>
+        <button class="hamburger" id="hamburger" aria-label="Abrir menú" aria-expanded="false">
+            <span></span><span></span><span></span>
+        </button>
+        <ul id="navMenu">
+            <li><a href="index.html#inicio">Inicio</a></li>
+            <li class="dropdown">
+                <a href="#" onclick="toggleDropdown(event)">Nosotros ▾</a>
+                <ul class="dropdown-menu">
+                    <li><a href="quienes-somos.html">Quiénes Somos</a></li>
+                    <li><a href="organigrama.html">Organigrama Institucional</a></li>
+                </ul>
+            </li>
+            <li><a href="index.html#proyectos">Proyectos</a></li>
+            <li><a href="index.html#youtube">Vigilando Ando</a></li>
+            <li><a href="index.html#mapa">Mapa</a></li>
+            <li><a href="proyectosvigilados.html" target="_blank">Proyectos Vigilados</a></li>
+            <li><a href="index.html#contacto">Contacto</a></li>
+        </ul>
+    </nav>
+
+    <!-- ===== CONTENIDO ===== -->
+    <h1>Proyectos Vigilados</h1>
+    <p class="subtitle">Listado completo de los proyectos bajo seguimiento técnico de la VTC.</p>
+
+    <div class="categoria"><h2>Educación</h2><ul><li>UTS Piedecuesta Fase III.</li><li>Colegio El Guayabal.</li><li>Colegio Integrado Los Santos.</li><li>Colegio Pitiguo.</li><li>Colegio Manuela Beltrán.</li><li>Colegio La Laguna.</li></ul></div>
+    <div class="categoria"><h2>Infraestructura Deportiva</h2><ul><li>Cancha La Marte.</li><li>Cancha Cristo Rey.</li><li>Villa Olímpica de Vélez.</li><li>Villa Olímpica de Cimitarra.</li><li>Estadio Municipal de Oiba.</li><li>Escenarios deportivos de Bucaramanga.</li></ul></div>
+    <div class="categoria"><h2>Infraestructura Hospitalaria</h2><ul><li>Hospital Regional de San Gil.</li><li>Hospital San Pedro Claver de Mogotes.</li><li>ESE Hospital Integrado San Roque.</li><li>ESE Hospital Nuestra Señora de las Nieves.</li></ul></div>
+    <div class="categoria"><h2>Infraestructura Vial</h2><ul><li>Girón – Zapatoca.</li><li>Zapatoca – Barichara.</li><li>Coromoro – Charalá.</li><li>Bucaramanga – Matanza.</li><li>Chima – Simacota.</li><li>Contratación – Guadalupe.</li><li>Mogotes – San Joaquín.</li><li>Carrera Primera de San Gil.</li><li>Vías urbanas de Güepsa.</li><li>Vías terciarias de Curití.</li></ul></div>
+    <div class="categoria"><h2>Puentes</h2><ul><li>Puente Vehicular Mogotes.</li><li>Puente Pescaderito.</li><li>Puente Vehicular Confines.</li><li>Puente Metálico.</li></ul></div>
+    <div class="categoria"><h2>Infraestructura Cultural</h2><ul><li>Parque Cultural Aldea Guane.</li><li>Casa de la Cultura de Contratación.</li><li>Parque Principal de Confines.</li></ul></div>
+    <div class="categoria"><h2>Infraestructura Turística</h2><ul><li>Sendero Las Gachas.</li><li>Nuevo Sendero Las Gachas.</li><li>Infraestructura Náutica de Santander.</li><li>Aeropuerto Los Pozos.</li></ul></div>
+    <div class="categoria"><h2>Infraestructura Institucional</h2><ul><li>Palacio Municipal de Floridablanca.</li><li>Palacio Municipal de Aratoca.</li><li>Centro Administrativo Municipal de Guapotá.</li><li>Estación de Policía de Oiba.</li><li>CAI de Girón.</li></ul></div>
+    <div class="categoria"><h2>Gestión del Riesgo</h2><ul><li>Estabilización Don Bosco.</li><li>Estabilización Nazareth.</li><li>Estabilización La Gloria.</li><li>Obras CDMB.</li><li>Mitigación Camilo Torres.</li><li>Mitigación Cuyanita.</li><li>Mitigación La Feria.</li></ul></div>
+    <div class="categoria"><h2>Acueducto y Alcantarillado</h2><ul><li>Acueducto y alcantarillado de Guapotá.</li><li>Línea de impulsión Bahondo – Valle de los Caballeros.</li><li>Canalización Bucaramanga.</li></ul></div>
+    <div class="categoria"><h2>Electrificación</h2><ul><li>Electrificación Rural de Coromoro.</li><li>Electrificación Rural de Charalá.</li></ul></div>
+    <div class="categoria"><h2>Desarrollo Rural</h2><ul><li>Centro de Acopio Agroempresarial de Onzaga.</li><li>Placas Huella de Cepitá.</li><li>Placas Huella de Molagavita.</li><li>Placas Huella de Concepción.</li><li>Placas Huella de Cerrito.</li><li>Placas Huella de Bucaramanga.</li><li>Placas Huella de Charta.</li></ul></div>
+
+    <h2 style="font-family:'Space Grotesk',sans-serif; font-size:2.2rem; font-weight:700; color:var(--yellow); margin-top:60px; border-bottom:2px solid rgba(252,209,22,0.2); padding-bottom:8px;">Seguimiento en Santander</h2>
+    <p style="color:var(--gray); margin-bottom:20px;">Ubicación de los principales proyectos vigilados por la VTC en el departamento de Santander.</p>
+    <div class="map-container"><div id="map"></div></div>
+
+    <a href="index.html" class="back-link">← Volver a la página principal</a>
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script>
+        // ----- DROPDOWN -----
+        function toggleDropdown(e) {
+            e.preventDefault();
+            const parent = e.currentTarget.closest('.dropdown');
+            const menu = parent.querySelector('.dropdown-menu');
+            document.querySelectorAll('.dropdown-menu.open').forEach(m => { if(m!==menu) m.classList.remove('open'); });
+            menu.classList.toggle('open');
+        }
+        document.addEventListener('click', function(e) { if(!e.target.closest('.dropdown')) { document.querySelectorAll('.dropdown-menu.open').forEach(m => m.classList.remove('open')); } });
+
+        // ----- HAMBURGUESA -----
+        const hamburger = document.getElementById('hamburger');
+        const navMenu = document.getElementById('navMenu');
+        hamburger.addEventListener('click', function() { this.classList.toggle('active'); navMenu.classList.toggle('open'); this.setAttribute('aria-expanded', this.classList.contains('active')); });
+        document.querySelectorAll('#navMenu a').forEach(link => { link.addEventListener('click', function() { hamburger.classList.remove('active'); navMenu.classList.remove('open'); hamburger.setAttribute('aria-expanded','false'); }); });
+
+        // ----- MAPA -----
+        document.addEventListener('DOMContentLoaded', function() {
+            if(typeof L==='undefined') return;
+            const map = L.map('map').setView([6.8,-73.2],9);
+            L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', { attribution:'&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>' }).addTo(map);
+            const proyectos = [
+                { nombre:'UTS Piedecuesta Fase III', lat:7.0861, lng:-73.0529, categoria:'Educación' },
+                { nombre:'Colegio El Guayabal', lat:7.1193, lng:-73.1227, categoria:'Educación' },
+                { nombre:'Colegio Integrado Los Santos', lat:7.1667, lng:-73.0833, categoria:'Educación' },
+                { nombre:'Colegio Pitiguo', lat:7.1193, lng:-73.1227, categoria:'Educación' },
+                { nombre:'Colegio Manuela Beltrán', lat:7.1193, lng:-73.1227, categoria:'Educación' },
+                { nombre:'Colegio La Laguna', lat:7.1193, lng:-73.1227, categoria:'Educación' },
+                { nombre:'Cancha La Marte', lat:7.1177, lng:-73.1064, categoria:'Deportiva' },
+                { nombre:'Cancha Cristo Rey', lat:7.1193, lng:-73.1227, categoria:'Deportiva' },
+                { nombre:'Villa Olímpica de Vélez', lat:6.0128, lng:-73.6744, categoria:'Deportiva' },
+                { nombre:'Villa Olímpica de Cimitarra', lat:6.3167, lng:-73.9500, categoria:'Deportiva' },
+                { nombre:'Estadio Municipal de Oiba', lat:6.2667, lng:-73.3000, categoria:'Deportiva' },
+                { nombre:'Escenarios deportivos de Bucaramanga', lat:7.1193, lng:-73.1227, categoria:'Deportiva' },
+                { nombre:'Hospital Regional de San Gil', lat:6.5597, lng:-73.1367, categoria:'Hospitalaria' },
+                { nombre:'Hospital San Pedro Claver de Mogotes', lat:6.4750, lng:-73.0167, categoria:'Hospitalaria' },
+                { nombre:'ESE Hospital Integrado San Roque', lat:6.5597, lng:-73.1367, categoria:'Hospitalaria' },
+                { nombre:'ESE Hospital Nuestra Señora de las Nieves', lat:6.5597, lng:-73.1367, categoria:'Hospitalaria' },
+                { nombre:'Girón – Zapatoca', lat:7.0677, lng:-73.1692, categoria:'Vial' },
+                { nombre:'Zapatoca – Barichara', lat:6.8153, lng:-73.2675, categoria:'Vial' },
+                { nombre:'Coromoro – Charalá', lat:6.2853, lng:-73.1444, categoria:'Vial' },
+                { nombre:'Bucaramanga – Matanza', lat:7.1193, lng:-73.1227, categoria:'Vial' },
+                { nombre:'Chima – Simacota', lat:6.3500, lng:-73.3667, categoria:'Vial' },
+                { nombre:'Contratación – Guadalupe', lat:6.2833, lng:-73.4667, categoria:'Vial' },
+                { nombre:'Mogotes – San Joaquín', lat:6.4750, lng:-73.0167, categoria:'Vial' },
+                { nombre:'Carrera Primera de San Gil', lat:6.5597, lng:-73.1367, categoria:'Vial' },
+                { nombre:'Vías urbanas de Güepsa', lat:6.0167, lng:-73.5667, categoria:'Vial' },
+                { nombre:'Vías terciarias de Curití', lat:6.6000, lng:-73.0667, categoria:'Vial' },
+                { nombre:'Puente Vehicular Mogotes', lat:6.4750, lng:-73.0167, categoria:'Puentes' },
+                { nombre:'Puente Pescaderito', lat:6.5597, lng:-73.1367, categoria:'Puentes' },
+                { nombre:'Puente Vehicular Confines', lat:6.3833, lng:-73.2333, categoria:'Puentes' },
+                { nombre:'Puente Metálico', lat:6.5597, lng:-73.1367, categoria:'Puentes' },
+                { nombre:'Parque Cultural Aldea Guane', lat:6.6356, lng:-73.2228, categoria:'Cultural' },
+                { nombre:'Casa de la Cultura de Contratación', lat:6.2833, lng:-73.4667, categoria:'Cultural' },
+                { nombre:'Parque Principal de Confines', lat:6.3833, lng:-73.2333, categoria:'Cultural' },
+                { nombre:'Sendero Las Gachas', lat:6.2500, lng:-73.4667, categoria:'Turística' },
+                { nombre:'Nuevo Sendero Las Gachas', lat:6.2500, lng:-73.4667, categoria:'Turística' },
+                { nombre:'Infraestructura Náutica de Santander', lat:7.1193, lng:-73.1227, categoria:'Turística' },
+                { nombre:'Aeropuerto Los Pozos', lat:7.1193, lng:-73.1227, categoria:'Turística' },
+                { nombre:'Palacio Municipal de Floridablanca', lat:7.0667, lng:-73.0833, categoria:'Institucional' },
+                { nombre:'Palacio Municipal de Aratoca', lat:6.6833, lng:-73.0167, categoria:'Institucional' },
+                { nombre:'Centro Administrativo Municipal de Guapotá', lat:6.3000, lng:-73.3000, categoria:'Institucional' },
+                { nombre:'Estación de Policía de Oiba', lat:6.2667, lng:-73.3000, categoria:'Institucional' },
+                { nombre:'CAI de Girón', lat:7.0677, lng:-73.1692, categoria:'Institucional' },
+                { nombre:'Estabilización Don Bosco', lat:7.1193, lng:-73.1227, categoria:'Gestión del Riesgo' },
+                { nombre:'Estabilización Nazareth', lat:7.1193, lng:-73.1227, categoria:'Gestión del Riesgo' },
+                { nombre:'Estabilización La Gloria', lat:7.1193, lng:-73.1227, categoria:'Gestión del Riesgo' },
+                { nombre:'Obras CDMB', lat:7.1193, lng:-73.1227, categoria:'Gestión del Riesgo' },
+                { nombre:'Mitigación Camilo Torres', lat:7.1193, lng:-73.1227, categoria:'Gestión del Riesgo' },
+                { nombre:'Mitigación Cuyanita', lat:7.1193, lng:-73.1227, categoria:'Gestión del Riesgo' },
+                { nombre:'Mitigación La Feria', lat:7.1193, lng:-73.1227, categoria:'Gestión del Riesgo' },
+                { nombre:'Acueducto y alcantarillado de Guapotá', lat:6.3000, lng:-73.3000, categoria:'Acueducto' },
+                { nombre:'Línea de impulsión Bahondo – Valle de los Caballeros', lat:7.1193, lng:-73.1227, categoria:'Acueducto' },
+                { nombre:'Canalización Bucaramanga', lat:7.1193, lng:-73.1227, categoria:'Acueducto' },
+                { nombre:'Electrificación Rural de Coromoro', lat:6.2833, lng:-73.0333, categoria:'Electrificación' },
+                { nombre:'Electrificación Rural de Charalá', lat:6.2853, lng:-73.1444, categoria:'Electrificación' },
+                { nombre:'Centro de Acopio Agroempresarial de Onzaga', lat:6.3500, lng:-73.0167, categoria:'Desarrollo Rural' },
+                { nombre:'Placas Huella de Cepitá', lat:6.7500, lng:-72.9667, categoria:'Desarrollo Rural' },
+                { nombre:'Placas Huella de Molagavita', lat:6.6667, lng:-72.8000, categoria:'Desarrollo Rural' },
+                { nombre:'Placas Huella de Concepción', lat:6.7667, lng:-72.7000, categoria:'Desarrollo Rural' },
+                { nombre:'Placas Huella de Cerrito', lat:6.8333, lng:-72.7000, categoria:'Desarrollo Rural' },
+                { nombre:'Placas Huella de Bucaramanga', lat:7.1193, lng:-73.1227, categoria:'Desarrollo Rural' },
+                { nombre:'Placas Huella de Charta', lat:7.2833, lng:-73.0000, categoria:'Desarrollo Rural' }
+            ];
+            const markers = [];
+            proyectos.forEach(p => { const marker = L.marker([p.lat,p.lng]).addTo(map).bindPopup(`<strong>${p.nombre}</strong><br><em>${p.categoria}</em><br>Proyecto vigilado por VTC.`); markers.push(marker); });
+            if(markers.length>0) { const group = L.featureGroup(markers); map.fitBounds(group.getBounds(), { padding:[50,50], maxZoom:12 }); }
+        });
+    </script>
+</body>
+</html>
