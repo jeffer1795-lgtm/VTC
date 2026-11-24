@@ -1,1 +1,1864 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>VTC · Formato de Visita Técnica — SI-SI-LP-004-2025</title>
+<style>
+:root{
+  --bg:#f4f5f7; --panel:#fff; --ink:#1f2937; --muted:#6b7280;
+  --line:#d7dce4; --accent:#003087; --accent2:#003087;
+  --ok:#1e8449; --warn:#8a6d00; --bad:#C8102E;
+  /* Colores institucionales Veeduría — proporción 2:1:1 (50% amarillo · 25% azul · 25% rojo) */
+  --ve-amarillo:#FFCD00; --ve-azul:#003087; --ve-rojo:#C8102E;
+  --ve-tri:linear-gradient(90deg,#FFCD00 0 50%,#003087 50% 75%,#C8102E 75% 100%);
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{background:var(--bg);color:var(--ink);font:14px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;-webkit-font-smoothing:antialiased}
 
+/* ---------- Barra superior (se oculta al bajar) ---------- */
+header.topbar{
+  position:sticky;top:0;z-index:60;color:#fff;
+  background:
+    linear-gradient(90deg,#FFCD00 0 50%,#003087 50% 75%,#C8102E 75% 100%) left top/100% 6px no-repeat,
+    linear-gradient(180deg,#003087,#00256b);
+  display:flex;gap:12px;align-items:center;justify-content:space-between;padding:16px 16px 10px;flex-wrap:wrap;
+  box-shadow:0 2px 10px rgba(0,0,0,.18);
+  transition:transform .25s ease, box-shadow .25s ease;
+}
+body.hide-bars header.topbar{transform:translateY(-100%);box-shadow:none;}
+.brand{font-weight:700;letter-spacing:.3px;font-size:15px}
+.brand small{display:block;font-weight:400;opacity:.82;font-size:11px;letter-spacing:.4px}
+.topactions{display:flex;gap:8px;flex-wrap:wrap}
+
+button{font:inherit;cursor:pointer;border:1px solid var(--line);background:#fff;color:var(--ink);
+  border-radius:9px;padding:7px 12px;transition:.15s;line-height:1.2}
+button:hover{background:#fff9e0;border-color:#e6c34a}
+/* Botón principal: amarillo institucional (50%) + franja 2:1:1 azul/rojo */
+button.primary{
+  background:
+    linear-gradient(90deg,#FFCD00 0 50%,#003087 50% 75%,#C8102E 75% 100%) left bottom/100% 4px no-repeat,
+    #FFCD00;
+  border-color:#e0b500;color:#003087;font-weight:700;
+}
+button.primary:hover{
+  background:
+    linear-gradient(90deg,#FFCD00 0 50%,#003087 50% 75%,#C8102E 75% 100%) left bottom/100% 4px no-repeat,
+    #FFD733;
+  border-color:#003087;
+}
+button.ghost{background:rgba(255,255,255,.12);border-color:rgba(255,255,255,.35);color:#fff}
+button.ghost:hover{background:#FFCD00;border-color:#FFCD00;color:#003087}
+button.mini{padding:3px 8px;font-size:12px;border-radius:7px}
+button.danger{color:#C8102E;border-color:#eeb9c1}
+button.danger:hover{background:#fdeef0;border-color:#C8102E}
+
+/* ---------- Paneles ---------- */
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:14px 16px;
+  margin:14px 16px;box-shadow:0 1px 2px rgba(16,24,40,.05)}
+.panel h2{font-size:15px;margin:0 0 12px;color:var(--accent);display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.panel h4{font-size:12px;margin:18px 0 8px;color:#374151;text-transform:uppercase;letter-spacing:.05em;border-bottom:1px solid #eef1f6;padding-bottom:5px}
+.spacer{flex:1}
+.badge{background:#e8f0f8;color:var(--accent);font-size:11px;font-weight:700;padding:2px 9px;border-radius:999px;letter-spacing:.3px}
+.badge.alt{background:#eaf6ee;color:var(--ok)}
+.muted{color:var(--muted);font-size:12.5px}
+.note{background:#fff8e8;border-left:3px solid var(--warn);padding:7px 10px;border-radius:0 8px 8px 0;font-size:12px;color:#7a5a12;margin-top:10px}
+
+/* ---------- Formularios ---------- */
+.grid3{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px}
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:10px}
+label{display:flex;flex-direction:column;gap:4px;font-size:11.5px;color:var(--muted);font-weight:700;letter-spacing:.2px}
+label.inline{flex-direction:row;align-items:center;gap:7px;font-weight:500;color:var(--ink);font-size:13px}
+input,select,textarea{font:inherit;font-weight:400;color:var(--ink);border:1px solid var(--line);
+  border-radius:8px;padding:7px 9px;background:#fff;width:100%;transition:.12s}
+input:focus,select:focus,textarea:focus{outline:2px solid rgba(255,205,0,.55);border-color:var(--accent2)}
+input[readonly]{background:#f4f6f9;color:#4b5563}
+input:disabled,select:disabled,textarea:disabled{background:#f7f8fa;color:#9aa3af;cursor:not-allowed}
+textarea{min-height:58px;resize:vertical;font-size:13px}
+input[type=checkbox]{width:auto;transform:scale(1.15);cursor:pointer}
+
+/* ---------- Tablas (scroll horizontal en móvil) ---------- */
+.tbl-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
+table.tbl{width:100%;border-collapse:collapse;font-size:12.5px}
+table.tbl th{background:#f2f5f9;text-align:left;padding:6px 8px;border:1px solid var(--line);
+  font-size:10.5px;text-transform:uppercase;letter-spacing:.04em;color:#4b5563;font-weight:700;white-space:nowrap}
+table.tbl td{border:1px solid var(--line);padding:3px 4px;vertical-align:middle}
+table.tbl td input,table.tbl td select{border:none;padding:5px 6px;background:transparent;border-radius:4px}
+table.tbl td input:focus,table.tbl td select:focus{outline:1px solid var(--accent2);background:#fff}
+table.tbl tbody tr:nth-child(even){background:#fafbfd}
+table.tbl tr.presente{background:#eef8f1}
+table.tbl tr.presente:nth-child(even){background:#e7f4ec}
+
+/* ---------- Chips de personal ---------- */
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin:6px 0 12px}
+.chip{border-radius:999px;padding:5px 12px;font-size:12.5px;background:#eef4fb;border:1px solid #cfe0f2;color:#0f4c81}
+.chip:hover{background:#dcebfa}
+.chip .c{opacity:.6;font-size:11px;margin-left:5px}
+.chip.new{background:#fff;border-style:dashed;color:var(--muted);border-color:#b9c5d3}
+
+/* ---------- Pestañas ---------- */
+.tabs{display:flex;gap:6px;padding:10px 16px 0;flex-wrap:wrap}
+.tab{border-radius:10px 10px 0 0;padding:8px 15px;font-size:13px;background:#e2e8f0;border-color:#cfd8e3;border-bottom:none}
+.tab.active{background:#fff;color:var(--accent);font-weight:700;box-shadow:0 -2px 6px rgba(0,0,0,.06)}
+.tab.add{background:transparent;border:1px dashed #9fb3c8;color:#4b5563}
+
+.hidden{display:none!important}
+
+/* ---------- Checklist ---------- */
+.check-list{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:6px}
+.check-item{display:flex;gap:9px;align-items:flex-start;padding:7px 10px;border:1px solid var(--line);
+  border-radius:9px;background:#fafbfd;font-size:13px;cursor:pointer}
+.check-item.on{background:#eef8f1;border-color:#b7e0c4}
+.check-item input{margin-top:2px}
+
+/* ---------- Fotos / firmas ---------- */
+.thumb{max-width:70px;max-height:70px;border-radius:6px;border:1px solid var(--line);display:block}
+.thumb.sign{width:120px;height:50px;object-fit:contain;background:#fff;cursor:pointer}
+
+/* ---------- Proyectos ---------- */
+.project-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:12px;margin-top:14px}
+.project-card{border:1px solid var(--line);border-radius:12px;padding:14px;cursor:pointer;background:#fff;transition:.15s}
+.project-card:hover{border-color:var(--accent2);box-shadow:0 2px 10px rgba(15,76,129,.12);transform:translateY(-1px)}
+.proj-head{display:flex;justify-content:space-between;align-items:flex-start;gap:8px;margin-bottom:8px}
+.proj-num{font-weight:700;color:var(--accent);font-size:14.5px;line-height:1.2}
+.proj-row{font-size:12.5px;margin:3px 0;line-height:1.35}
+.proj-foot{display:flex;justify-content:space-between;align-items:center;margin-top:10px;padding-top:8px;border-top:1px solid #eef1f6;font-size:11px}
+
+/* ---------- Modal ---------- */
+.modal{position:fixed;inset:0;background:rgba(15,23,42,.55);display:none;align-items:center;justify-content:center;z-index:200;padding:16px}
+.modal.open{display:flex}
+.modal-box{background:#fff;border-radius:14px;max-width:560px;width:100%;max-height:86vh;overflow:auto;
+  padding:22px;box-shadow:0 24px 60px rgba(0,0,0,.35)}
+.modal-box.signature{max-width:660px;padding:16px}
+.modal-box h3{margin:0 0 14px;font-size:16px;color:var(--accent)}
+.modal-box label{margin-bottom:10px}
+.modal-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:16px}
+.hist-row{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid #eef1f6;font-size:13px}
+.hist-actions{display:flex;gap:6px}
+
+/* ---------- Firma digital ---------- */
+.sign-wrap{display:flex;flex-direction:column;gap:12px}
+#signCanvas{width:100%;height:300px;border:2px solid var(--line);border-radius:10px;background:#fff;
+  touch-action:none;cursor:crosshair;display:block}
+.sign-actions{display:flex;gap:12px}
+.sign-actions button{flex:1;padding:16px;font-size:16px;font-weight:700;border-radius:10px;min-height:54px}
+.sign-actions .exit{background:#fff;color:var(--bad);border:2px solid var(--bad)}
+.sign-actions .exit:hover{background:#fdf1f0}
+.sign-actions .save{
+  background:
+    linear-gradient(90deg,#FFCD00 0 50%,#003087 50% 75%,#C8102E 75% 100%) left bottom/100% 5px no-repeat,
+    #FFCD00;
+  color:#003087;border:2px solid #e0b500;
+}
+.sign-actions .save:hover{
+  background:
+    linear-gradient(90deg,#FFCD00 0 50%,#003087 50% 75%,#C8102E 75% 100%) left bottom/100% 5px no-repeat,
+    #FFD733;
+  border-color:#003087;
+}
+
+/* ---------- Barra inferior móvil ---------- */
+.mobile-bottom-nav{display:none}
+
+/* ---------- Toast ---------- */
+#toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%) translateY(20px);background:#111827;color:#fff;
+  padding:10px 20px;border-radius:10px;opacity:0;pointer-events:none;transition:.28s;z-index:300;font-size:13px;max-width:90vw}
+#toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+/* ---------- Impresión ---------- */
+@media print{
+  @page{margin:12mm}
+  .no-print,.topactions,.tabs,.chips,#toast,.modal,.mobile-bottom-nav{display:none!important}
+  body{background:#fff;font-size:10.5px}
+  header.topbar{position:static;background:#fff;color:#000;box-shadow:none;border-bottom:2px solid #000;padding:6px 0;transform:none!important}
+  .panel{margin:6px 0;padding:8px 10px;box-shadow:none;border:1px solid #999;break-inside:avoid;border-radius:6px}
+  .front{display:block!important;page-break-after:always}
+  .front:last-child{page-break-after:auto}
+  .hidden{display:block!important}
+  input,select,textarea{border:1px solid #bbb!important;background:#fff!important}
+  table.tbl td input,table.tbl td select{border:none!important}
+  .thumb{max-width:90px;max-height:90px}
+}
+
+/* ---------- Móvil ---------- */
+@media(max-width:700px){
+  body{font-size:15px;padding-bottom:calc(72px + env(safe-area-inset-bottom))}
+  header.topbar{padding:14px 10px 8px;gap:6px;justify-content:flex-start}
+  .brand{font-size:13px}.brand small{display:none}
+  .topactions{gap:5px;flex-wrap:nowrap;overflow-x:auto;width:100%;scrollbar-width:none}
+  .topactions::-webkit-scrollbar{display:none}
+  .topactions button{white-space:nowrap;flex:0 0 auto;font-size:12px;padding:8px 10px}
+  .panel{margin:10px 8px;padding:13px 12px;border-radius:12px}
+  .grid2,.grid3{grid-template-columns:1fr;gap:9px}
+  input,select,textarea{font-size:16px;min-height:44px;padding:10px}
+  textarea{min-height:84px}
+  button{min-height:42px}
+  .chips{gap:8px}.chip{padding:9px 12px}
+  /* Tablas: mantener scroll horizontal (no block) */
+  .tbl-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
+  .mobile-bottom-nav{position:fixed;z-index:70;left:0;right:0;bottom:0;display:flex;gap:6px;overflow-x:auto;
+    padding:8px 8px calc(8px + env(safe-area-inset-bottom));background:#fff;border-top:1px solid var(--line);box-shadow:0 -3px 14px rgba(15,23,42,.12);
+    transition:transform .25s ease;}
+  body.hide-bars .mobile-bottom-nav{transform:translateY(100%)}
+  .mobile-bottom-nav button{flex:1 0 auto;white-space:nowrap;font-size:12px;padding:9px 11px;border-color:#cbd5e1}
+  .mobile-bottom-nav button.active{background:var(--accent);border-color:var(--accent);color:#fff}
+  .project-grid{grid-template-columns:1fr}
+  #signCanvas{height:260px}
+  .sign-actions button{padding:14px;font-size:15px}
+}
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="brand">
+    <span id="brandTitle">FORMATO DE VISITA TÉCNICA – VTC</span>
+    <small id="brandSub">Control Preventivo · SI-SI-LP-004-2025 · FVT-VTC-APB-001 v1.0</small>
+  </div>
+  <div class="topactions" id="topActions"></div>
+</header>
+
+<input type="file" id="inpImport" accept="application/json" hidden onchange="importJSON(this)">
+
+<div id="app"></div>
+<nav id="mobileBottomNav" class="mobile-bottom-nav no-print" aria-label="Navegación de jornada"></nav>
+
+<div class="modal" id="modal" onclick="if(event.target===this)closeModal()">
+  <div class="modal-box" id="modalBox"></div>
+</div>
+<div id="toast"></div>
+
+<datalist id="cargosList"></datalist>
+<datalist id="maqList"></datalist>
+
+<script>
+/* =========================================================
+   CONSTANTES
+   ========================================================= */
+const LS_KEY = 'vtc_si_si_lp_004_2025_v2';
+
+const DEFAULT_ING = {
+  nombre: 'ING. JEFERSON JEAN CARLO OLARTE LANCHEROS',
+  cargo:  'INGENIERO CIVIL · DIRECTOR DE PROCESOS Y SUPERVISIÓN TÉCNICA – VTC',
+  tarjeta:'T.P. 151037-0602160 STD'
+};
+
+const DOCS = [
+  'Bitácora de obra','Cronograma de actividades','Planos aprobados','Especificaciones técnicas',
+  'Protocolo de excavación','Protocolo de instalación de tubería','Protocolo de cajas de inspección',
+  'Protocolo de frisado','Protocolo de relleno y compactación','Certificados de calidad de materiales',
+  'Remisiones de materiales','Ensayos de compactación','PMT aprobado','ATS / AST del día',
+  'Permisos de trabajo','Charla de seguridad del día','Planilla PILA','Certificados de RCD',
+  'Órdenes de Interventoría','Informe diario de Interventoría'
+];
+
+const CALIDAD = [
+  'Alineamiento y pendiente de tubería','Profundidad y ancho de excavación','Cama de apoyo',
+  'Protección de redes','Dosificación de mortero / concreto','Espesor y acabado de frisado','Curado',
+  'Capas y compactación','Nivel y alineamiento de bordillos','Cuadre de cajas','Interferencias con redes'
+];
+
+const SST_ITEMS = [
+  ['EPP completo del personal',['Sí','No','Parcial']],
+  ['Señalización del frente',['Sí','No','Parcial']],
+  ['Cerramiento',['Sí','No','Parcial']],
+  ['Charla de seguridad del día',['Sí','No']],
+  ['ATS / AST',['Sí','No']],
+  ['Permisos de trabajo',['Sí','No']],
+  ['LOTO aplicado',['Sí','No','No aplica']],
+  ['Orden y aseo',['Sí','No','Parcial']],
+  ['Riesgo eléctrico controlado',['Sí','No','Parcial']],
+  ['Trabajo en zanja seguro',['Sí','No','Parcial']]
+];
+
+const AMB_ITEMS = [
+  ['Manejo de RCD',['Sí','No','Parcial']],
+  ['Certificados de disposición',['Sí','No']],
+  ['Protección de árboles / raíces',['Sí','No','No aplica']],
+  ['Manejo de aguas',['Sí','No','Parcial']],
+  ['PMT aplicado',['Sí','No','Parcial']],
+  ['Señalización vial',['Sí','No','Parcial']],
+  ['Cierres y desvíos',['Sí','No','Parcial']],
+  ['Protección peatonal',['Sí','No','Parcial']]
+];
+
+const CRITICAS = [
+  'Excavación manual','Excavación mecánica','Instalación de tubería','Cajas de inspección / paso',
+  'Frisado','Relleno y compactación','Bordillos','Sardinel','Demolición','Manejo de RCD','Señalización / PMT'
+];
+
+const CARGOS = [
+  'Director de Obra','Residente de Obra','Profesional SST','HSEQ','Auxiliar de Ingeniería',
+  'Técnico HSEQ','Maestro','Oficial','Ayudantes','Operador de maquinaria','Cadenero','Controladores de tráfico'
+];
+
+const PREGUNTAS = [
+  {key:'p2', t:'¿Qué actividades ha supervisado hoy?'},
+  {key:'p3', t:'¿Dónde están los otros profesionales ofertados?'},
+  {key:'p4', t:'¿Por qué no está la bitácora / el cronograma en obra?'}
+];
+
+const CHECKLIST = [
+  'Tengo nombre y cédula de cada profesional del Contratista y de la Interventoría.',
+  'Tengo hora de llegada y salida y hora de presencia de cada profesional.',
+  'Verifiqué los cuatro perfiles ofertados de la Interventoría, uno por uno.',
+  'Pregunté dónde están los ausentes y anoté la respuesta textual.',
+  'Verifiqué bitácora y cronograma; si no están, anoté quién dijo qué.',
+  'Tomé foto de los documentos o de su ausencia.',
+  'Verifiqué maquinaria, operador y preoperacional.',
+  'Verifiqué ATS, charla, permisos y EPP.',
+  'Verifiqué PMT y señalización.',
+  'Verifiqué manejo de RCD y protección ambiental.',
+  'Anoté cantidades ejecutadas (metros, cajas, volúmenes).',
+  'Registré coordenadas y hora de cada foto.',
+  'Identifiqué al menos un hallazgo verificable con evidencia.',
+  'Dejé firma o constancia de negativa de Contratista e Interventoría.',
+  'Separé la información por frente, no mezclada.'
+];
+
+const ROLES_FIRMA = ['Ingeniero VTC','Residente de Obra','Interventoría','Otro'];
+
+/* =========================================================
+   UTILIDADES
+   ========================================================= */
+const $  = (s,r=document)=>r.querySelector(s);
+const $$ = (s,r=document)=>[...r.querySelectorAll(s)];
+const uid = ()=>Math.random().toString(36).slice(2,9);
+const esc = v => String(v ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const hoy = ()=>{const d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');};
+const horaActual = ()=>{const d=new Date();return String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0');};
+const DIAS = ['domingo','lunes','martes','miércoles','jueves','viernes','sábado'];
+function diaSemana(fecha){
+  const d = new Date(fecha+'T12:00:00');
+  return isNaN(d) ? '' : DIAS[d.getDay()];
+}
+function opts(list, sel){
+  const s = String(sel ?? '');
+  return list.map(v=>`<option value="${esc(v)}"${String(v)===s?' selected':''}>${v===''?'—':esc(v)}</option>`).join('');
+}
+function toast(msg, ms=2600){
+  const t = $('#toast'); t.textContent = msg; t.classList.add('show');
+  clearTimeout(t._t); t._t = setTimeout(()=>t.classList.remove('show'), ms);
+}
+
+/* =========================================================
+   ESTADO / PERSISTENCIA
+   ========================================================= */
+function seedInterventoria(){
+  return [
+    {id:'iv1', nombre:'Iván Eduardo Torres Chinchilla',   tarjetaProfesional:'', cargo:'Coordinador Residente',        ofertado:true},
+    {id:'iv2', nombre:'Luis Carlos Posada Esparragoza',   tarjetaProfesional:'', cargo:'Profesional HSEQ',             ofertado:true},
+    {id:'iv3', nombre:'María Argenis Sarmiento Zambrano', tarjetaProfesional:'', cargo:'Profesional Salud Ocupacional', ofertado:true},
+    {id:'iv4', nombre:'Leonardo Vera',                    tarjetaProfesional:'', cargo:'Especialista Eléctrico',        ofertado:true}
+  ];
+}
+
+function blankJornada(){
+  return {
+    id: uid(),
+    fecha: hoy(),
+    dia: diaSemana(hoy()),
+    clima: '',
+    engineId: null,
+    acompanantes: '',
+    obsGenerales: '',
+    checklist: {},
+    fronts: [newFront(1)]
+  };
+}
+
+function newFront(n){
+  return {
+    id: uid(),
+    nombre: 'Frente ' + (n || 1),
+    direccion:'', coordenadas:'', horaLlegada:'', horaSalida:'',
+    acceso:'', obsAcceso:'',
+    contratista:{}, interventoria:{}, preguntas:{},
+    maquinaria:[], actividades:[], criticas:[], criticaOtra:'',
+    personalOperativo:[], obsB:'', obsC:'', obsOperativo:'',
+    docs:{}, calidad:{}, sst:{}, ambiental:{},
+    fotos:[], hallazgos:[], firmas:[blankFirma()],
+    obsGenerales:''
+  };
+}
+
+function blankFirma(){
+  return {rol:'', nombre:'', tarjeta:'', firma:'', firmaImg:'', hora:''};
+}
+
+function newProject(){
+  return {
+    id: uid(),
+    numeroProceso: '',
+    contratista: '',
+    interventoria: '',
+    ingenierosVtc: [Object.assign({id: uid()}, DEFAULT_ING)],
+    jornada: blankJornada(),
+    history: [],
+    createdAt: new Date().toISOString()
+  };
+}
+
+function loadDB(){
+  try{
+    const raw = localStorage.getItem(LS_KEY) || localStorage.getItem('vtc_si_si_lp_004_2025_v1');
+    return raw ? JSON.parse(raw) : null;
+  }catch(e){ console.warn('No se pudo leer el almacenamiento', e); return null; }
+}
+
+let DB = loadDB() || {};
+
+function migrateOldDB(){
+  if(DB.jornada && !DB.projects){
+    const proj = {
+      id: uid(),
+      numeroProceso: 'SI-SI-LP-004-2025',
+      contratista: 'CONSORCIO A.P. CVU',
+      interventoria: 'Universidad de Pamplona / ITAF S.A.S.',
+      ingenierosVtc: [Object.assign({id: uid()}, DEFAULT_ING)],
+      jornada: DB.jornada,
+      history: DB.history || [],
+      createdAt: new Date().toISOString()
+    };
+    DB.projects = [proj];
+    DB.activeProjectId = proj.id;
+    delete DB.jornada;
+    delete DB.history;
+  }
+}
+
+function initDB(){
+  migrateOldDB();
+  if(!DB.catalogs) DB.catalogs = {};
+  if(!Array.isArray(DB.catalogs.contratista)) DB.catalogs.contratista = [];
+  if(!Array.isArray(DB.catalogs.interventoria) || !DB.catalogs.interventoria.length)
+    DB.catalogs.interventoria = seedInterventoria();
+  if(!Array.isArray(DB.projects)) DB.projects = [];
+
+  DB.projects.forEach(p=>{
+    if(!Array.isArray(p.ingenierosVtc) || !p.ingenierosVtc.length)
+      p.ingenierosVtc = [Object.assign({id: uid()}, DEFAULT_ING)];
+    if(!p.jornada) p.jornada = blankJornada();
+    if(!Array.isArray(p.history)) p.history = [];
+    if(!Array.isArray(p.jornada.fronts) || !p.jornada.fronts.length)
+      p.jornada.fronts = [newFront(1)];
+    if(!p.jornada.checklist) p.jornada.checklist = {};
+    p.jornada.fronts.forEach(f=>{
+      if(!Array.isArray(f.personalOperativo)) f.personalOperativo = [];
+      if(typeof f.obsB !== 'string') f.obsB = '';
+      if(typeof f.obsC !== 'string') f.obsC = '';
+      if(typeof f.obsOperativo !== 'string') f.obsOperativo = '';
+      // Firmas: una sola casilla por defecto; las demás se agregan a demanda
+      if(!Array.isArray(f.firmas) || !f.firmas.length) f.firmas = [blankFirma()];
+      else{
+        const vacia = v => !v.nombre && !v.tarjeta && !v.firmaImg && (!v.rol || ROLES_FIRMA.includes(v.rol));
+        if(f.firmas.length > 1 && f.firmas.slice(1).every(vacia))
+          f.firmas = [vacia(f.firmas[0]) ? blankFirma() : f.firmas[0]];
+        f.firmas.forEach(v => Object.assign(v, {rol:v.rol||'', nombre:v.nombre||'', tarjeta:v.tarjeta||'', firma:v.firma||'', firmaImg:v.firmaImg||'', hora:v.hora||''}));
+      }
+    });
+  });
+
+  if(!DB.activeProjectId || !DB.projects.find(p=>p.id===DB.activeProjectId))
+    DB.activeProjectId = null;
+}
+
+let saveTimer = null;
+function save(){
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(persist, 350);
+}
+function persist(){
+  try{
+    localStorage.setItem(LS_KEY, JSON.stringify(DB));
+    return true;
+  }catch(e){
+    console.error(e);
+    toast('⚠ No se pudo guardar: almacenamiento lleno. Exporte el JSON y elimine fotos.', 6000);
+    return false;
+  }
+}
+function forzarGuardado(){
+  clearTimeout(saveTimer);
+  if(persist()) toast('✔ Datos guardados');
+}
+
+/* =========================================================
+   HELPERS DE PROYECTO / FRENTE
+   ========================================================= */
+function getActiveProject(){
+  return DB.projects.find(p=>p.id===DB.activeProjectId) || null;
+}
+function J(){
+  const p = getActiveProject();
+  return p ? p.jornada : null;
+}
+function getCurrentEngineer(){
+  const p = getActiveProject();
+  if(!p) return null;
+  return p.ingenierosVtc.find(e=>e.id===p.jornada.engineId) || p.ingenierosVtc[0];
+}
+
+let activeTab = 0;
+
+/* =========================================================
+   ACCIONES
+   ========================================================= */
+function updJ(field, value){ J()[field] = value; save(); }
+
+function setFecha(v){
+  const j = J();
+  j.fecha = v;
+  j.dia = diaSemana(v);
+  const el = document.getElementById('diaSemana');
+  if(el) el.value = j.dia;
+  save();
+}
+
+function updFront(fi, field, value){ J().fronts[fi][field] = value; save(); }
+
+function updSub(fi, group, key, field, value){
+  const f = J().fronts[fi];
+  f[group][key] = f[group][key] || {};
+  f[group][key][field] = value;
+  save();
+}
+
+function updRow(fi, group, ri, field, value){
+  J().fronts[fi][group][ri][field] = value; save();
+}
+
+function addRow(fi, group, obj){
+  J().fronts[fi][group].push(obj);
+  save(); render();
+}
+
+function delRow(fi, group, ri){
+  J().fronts[fi][group].splice(ri,1);
+  save(); render();
+}
+
+function toggleCritica(fi, valor, checked){
+  const f = J().fronts[fi];
+  const i = f.criticas.indexOf(valor);
+  if(checked && i === -1) f.criticas.push(valor);
+  if(!checked && i > -1) f.criticas.splice(i,1);
+  save();
+}
+
+function toggleChecklist(i, checked){ J().checklist[i] = checked; save(); }
+
+/* --- GPS --- */
+function gpsInto(fi, field){
+  if(!navigator.geolocation){toast('Este dispositivo no ofrece ubicación GPS');return;}
+  toast('Solicitando ubicación…');
+  navigator.geolocation.getCurrentPosition(pos=>{
+    updFront(fi, field, `${pos.coords.latitude.toFixed(6)}, ${pos.coords.longitude.toFixed(6)}`);
+    render(); toast('Coordenadas agregadas');
+  }, err=>toast(err.code===1?'Permite el acceso a ubicación para usar el GPS':'No se pudo obtener el GPS; revisa señal y permisos'),
+  {enableHighAccuracy:true,timeout:20000,maximumAge:0});
+}
+
+/* --- Personal --- */
+function getPersona(tipo, id){
+  return DB.catalogs[tipo].find(p => p.id === id) || {nombre:'(no acreditado)', tarjetaProfesional:'', cargo:''};
+}
+
+function esCargoSST(cargo){
+  return /coordinador.*hseq|coordinador.*sst|profesional sst|tecn[oó]logo sst|tecnico hseq/i.test(cargo||'');
+}
+
+function togglePresente(fi, tipo, id, checked){
+  const f = J().fronts[fi];
+  f[tipo][id] = f[tipo][id] || {};
+  f[tipo][id].presente = checked;
+  if(!checked){
+    f[tipo][id].hora = '';
+    f[tipo][id].actividad = '';
+    f[tipo][id].obs = '';
+    f[tipo][id].justificacion = '';
+  } else if(!f[tipo][id].hora){
+    f[tipo][id].hora = horaActual();
+  }
+  save(); render();
+}
+
+function updPersona(fi, tipo, id, field, value){
+  const f = J().fronts[fi];
+  f[tipo][id] = f[tipo][id] || {presente:true};
+  f[tipo][id][field] = value;
+  save();
+}
+
+function updCat(tipo, id, field, value){
+  const p = DB.catalogs[tipo].find(x => x.id === id);
+  if(p){ p[field] = value; save(); }
+}
+
+function modalPersona(fi, tipo){
+  const titulo = tipo === 'contratista' ? 'Personal del Contratista' : 'Personal de Interventoría';
+  showModal(`
+    <h3>Agregar persona · ${titulo}</h3>
+    <label>Nombre completo<input id="mNombre" placeholder="Nombres y apellidos"></label>
+    <label>Cargo / perfil<input id="mCargo" list="cargosList" placeholder="Ej: Residente de Obra"></label>
+    <label><span id="mIdText">Tarjeta profesional</span><input id="mCedula" placeholder="Número de tarjeta profesional"></label>
+    <label class="inline"><input type="checkbox" id="mOfertado"> Perfil ofertado en el contrato</label>
+    <div class="note">La persona queda guardada en el catálogo y aparecerá en las próximas visitas para marcarla con un clic.</div>
+    <div class="modal-actions">
+      <button onclick="closeModal()">Cancelar</button>
+      <button class="primary" onclick="guardarPersona(${fi},'${tipo}')">Guardar y marcar presente</button>
+    </div>
+  `);
+  const cargo = document.getElementById('mCargo');
+  const idText = document.getElementById('mIdText');
+  const input = document.getElementById('mCedula');
+  const cambiaTipo = ()=>{
+    const res = esCargoSST(cargo.value);
+    idText.textContent = res ? 'Número de resolución' : 'Tarjeta profesional';
+    input.placeholder = res ? 'Número de resolución' : 'Número de tarjeta profesional';
+  };
+  cargo.addEventListener('input', cambiaTipo);
+  cambiaTipo();
+  setTimeout(()=>document.getElementById('mNombre').focus(), 60);
+}
+
+function guardarPersona(fi, tipo){
+  const nombre = document.getElementById('mNombre').value.trim();
+  const tarjeta = document.getElementById('mCedula').value.trim();
+  const cargo  = document.getElementById('mCargo').value.trim();
+  const ofertado = document.getElementById('mOfertado').checked;
+  if(!nombre){ alert('El nombre es obligatorio.'); return; }
+  const nueva = {id: uid(), nombre, tarjetaProfesional: tarjeta, cargo, ofertado};
+  DB.catalogs[tipo].push(nueva);
+  const f = J().fronts[fi];
+  f[tipo][nueva.id] = {presente:true, hora:horaActual(), actividad:'', obs:'', justificacion:''};
+  closeModal(); save(); render();
+  toast('Persona agregada al catálogo');
+}
+
+function borrarDelCatalogo(tipo, id){
+  if(!confirm('¿Eliminar esta persona del catálogo general? Se borrará también de las próximas visitas.')) return;
+  DB.catalogs[tipo] = DB.catalogs[tipo].filter(p => p.id !== id);
+  save(); render();
+  if($('#modal').classList.contains('open')) modalCatalogo(tipo);
+}
+
+function modalCatalogo(tipo){
+  const cat = DB.catalogs[tipo] || [];
+  const filas = cat.length ? cat.map(p=>`
+    <div class="hist-row">
+      <div>
+        <b>${esc(p.nombre || '(sin nombre)')}</b>
+        <div class="muted">${esc(p.cargo || '—')} · ${esc(p.tarjetaProfesional || '—')}${p.ofertado ? ' · perfil ofertado' : ''}</div>
+      </div>
+      <div class="hist-actions"><button class="mini danger" onclick="borrarDelCatalogo('${tipo}','${p.id}')">✕</button></div>
+    </div>`).join('') : '<p class="muted">El catálogo está vacío.</p>';
+  showModal(`
+    <h3>Catálogo · ${tipo === 'contratista' ? 'Contratista' : 'Interventoría'}</h3>
+    ${filas}
+    <div class="modal-actions"><button onclick="closeModal()">Cerrar</button></div>
+  `);
+}
+
+/* --- Frentes --- */
+function addFront(){
+  const j = J();
+  j.fronts.push(newFront(j.fronts.length + 1));
+  activeTab = j.fronts.length - 1;
+  save(); render(); toast('Frente agregado');
+}
+
+function delFront(fi){
+  const j = J();
+  if(j.fronts.length === 1){ alert('Debe existir al menos un frente.'); return; }
+  if(!confirm('¿Eliminar este frente y todos sus datos?')) return;
+  j.fronts.splice(fi,1);
+  activeTab = 0;
+  save(); render();
+}
+
+/* --- Fotos --- */
+function compressImage(file, maxW=640, q=0.5){
+  return new Promise((res, rej)=>{
+    const img = new Image();
+    const url = URL.createObjectURL(file);
+    img.onload = ()=>{
+      const scale = Math.min(1, maxW / img.width);
+      const c = document.createElement('canvas');
+      c.width  = Math.round(img.width * scale);
+      c.height = Math.round(img.height * scale);
+      c.getContext('2d').drawImage(img, 0, 0, c.width, c.height);
+      URL.revokeObjectURL(url);
+      res(c.toDataURL('image/jpeg', q));
+    };
+    img.onerror = (e)=>{ URL.revokeObjectURL(url); rej(e); };
+    img.src = url;
+  });
+}
+
+async function setFoto(fi, ri, input){
+  const file = input.files && input.files[0];
+  if(!file) return;
+  try{
+    const dataUrl = await compressImage(file);
+    const f = J().fronts[fi];
+    f.fotos[ri].img = dataUrl;
+    f.fotos[ri].archivo = file.name;
+    if(!f.fotos[ri].hora) f.fotos[ri].hora = horaActual();
+    if(!f.fotos[ri].coord && f.coordenadas) f.fotos[ri].coord = f.coordenadas;
+    render(); save();
+    toast('Foto adjuntada (comprimida)');
+  }catch(e){ alert('No se pudo procesar la imagen.'); }
+}
+
+/* =========================================================
+   MODAL
+   ========================================================= */
+function showModal(html){
+  $('#modalBox').className = 'modal-box';
+  $('#modalBox').innerHTML = html;
+  $('#modal').classList.add('open');
+}
+function closeModal(){
+  $('#modal').classList.remove('open');
+  $('#modalBox').innerHTML = '';
+  $('#modalBox').className = 'modal-box';
+  signCanvas = null; signCtx = null; signFi = -1; signRi = -1;
+}
+
+/* =========================================================
+   FIRMA DIGITAL (canvas)
+   ========================================================= */
+let signFi = -1, signRi = -1, signCanvas = null, signCtx = null;
+
+function openSignature(fi, ri){
+  signFi = fi; signRi = ri;
+  const f = J().fronts[fi];
+  const fm = f.firmas[ri];
+
+  $('#modalBox').className = 'modal-box signature';
+  $('#modalBox').innerHTML = `
+    <h3>Firma digital</h3>
+    <div class="sign-wrap">
+      <canvas id="signCanvas"></canvas>
+      <div class="sign-actions">
+        <button class="exit" onclick="closeModal()">✕ Salir</button>
+        <button class="save" onclick="saveSignature()">✓ Guardar firma</button>
+      </div>
+    </div>
+  `;
+  $('#modal').classList.add('open');
+
+  requestAnimationFrame(()=>{
+    const canvas = document.getElementById('signCanvas');
+    if(!canvas) return;
+    const rect = canvas.getBoundingClientRect();
+    const dpr = window.devicePixelRatio || 1;
+    canvas.width = rect.width * dpr;
+    canvas.height = rect.height * dpr;
+    const ctx = canvas.getContext('2d');
+    ctx.scale(dpr, dpr);
+    ctx.fillStyle = '#fff';
+    ctx.fillRect(0, 0, rect.width, rect.height);
+    ctx.strokeStyle = '#000';
+    ctx.lineWidth = 2.2;
+    ctx.lineCap = 'round';
+    ctx.lineJoin = 'round';
+    signCanvas = canvas;
+    signCtx = ctx;
+
+    if(fm.firmaImg){
+      const img = new Image();
+      img.onload = ()=>ctx.drawImage(img, 0, 0, rect.width, rect.height);
+      img.src = fm.firmaImg;
+    }
+
+    let drawing = false, lx = 0, ly = 0;
+    const pos = e => {
+      const r = canvas.getBoundingClientRect();
+      const t = e.touches ? e.touches[0] : e;
+      return { x: t.clientX - r.left, y: t.clientY - r.top };
+    };
+    const start = e => { e.preventDefault(); drawing = true; const p = pos(e); lx = p.x; ly = p.y; };
+    const move = e => {
+      if(!drawing) return;
+      e.preventDefault();
+      const p = pos(e);
+      ctx.beginPath();
+      ctx.moveTo(lx, ly);
+      ctx.lineTo(p.x, p.y);
+      ctx.stroke();
+      lx = p.x; ly = p.y;
+    };
+    const end = () => { drawing = false; };
+
+    canvas.addEventListener('mousedown', start);
+    canvas.addEventListener('mousemove', move);
+    canvas.addEventListener('mouseup', end);
+    canvas.addEventListener('mouseleave', end);
+    canvas.addEventListener('touchstart', start, {passive:false});
+    canvas.addEventListener('touchmove', move, {passive:false});
+    canvas.addEventListener('touchend', end);
+  });
+}
+
+function saveSignature(){
+  if(!signCanvas || signFi < 0){ closeModal(); return; }
+  const dataUrl = signCanvas.toDataURL('image/jpeg', 0.85);
+  const f = J().fronts[signFi];
+  f.firmas[signRi].firmaImg = dataUrl;
+  f.firmas[signRi].firma = 'Firmado';
+  if(!f.firmas[signRi].hora) f.firmas[signRi].hora = horaActual();
+  save();
+  const fi = signFi, ri = signRi;
+  closeModal();
+  render();
+  toast('Firma guardada');
+}
+
+/* =========================================================
+   PROYECTOS
+   ========================================================= */
+function openProject(id){
+  DB.activeProjectId = id;
+  activeTab = 0;
+  save(); render();
+}
+
+function backToProjects(){
+  DB.activeProjectId = null;
+  save(); render();
+}
+
+function editProject(id){
+  const editing = id ? DB.projects.find(p=>p.id===id) : null;
+  const draft = editing
+    ? JSON.parse(JSON.stringify(editing))
+    : newProject();
+
+  window._projDraft = draft;
+
+  showModal(`
+    <h3>${editing ? 'Editar' : 'Nuevo'} proyecto</h3>
+    <label>Número de proceso<input id="pNum" value="${esc(draft.numeroProceso)}" placeholder="Ej: SI-SI-LP-004-2025"></label>
+    <label>Contratista<input id="pCont" value="${esc(draft.contratista)}" placeholder="CONSORCIO A.P. CVU"></label>
+    <label>Interventoría<input id="pInt" value="${esc(draft.interventoria)}" placeholder="Universidad de Pamplona / ITAF S.A.S."></label>
+    <h4 style="margin-top:14px">Ingenieros VTC</h4>
+    <div id="engList"></div>
+    <button class="mini" onclick="addEngRow()" style="margin-top:4px">＋ Agregar otro profesional</button>
+    <div class="modal-actions">
+      <button onclick="closeModal()">Cancelar</button>
+      <button class="primary" onclick="saveProject('${id || ''}')">Guardar proyecto</button>
+    </div>
+  `);
+  renderEngList();
+}
+
+function renderEngList(){
+  const draft = window._projDraft;
+  const list = document.getElementById('engList');
+  if(!list) return;
+  list.innerHTML = draft.ingenierosVtc.map((e,i)=>`
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr auto;gap:6px;margin-bottom:6px;align-items:center">
+      <input placeholder="Nombre" value="${esc(e.nombre)}" oninput="window._projDraft.ingenierosVtc[${i}].nombre=this.value">
+      <input placeholder="Cargo" value="${esc(e.cargo)}" oninput="window._projDraft.ingenierosVtc[${i}].cargo=this.value">
+      <input placeholder="Tarjeta / Resolución" value="${esc(e.tarjeta)}" oninput="window._projDraft.ingenierosVtc[${i}].tarjeta=this.value">
+      <button class="mini danger" onclick="window._projDraft.ingenierosVtc.splice(${i},1);renderEngList()">✕</button>
+    </div>
+  `).join('');
+}
+
+function addEngRow(){
+  window._projDraft.ingenierosVtc.push({id: uid(), nombre:'', cargo:'', tarjeta:''});
+  renderEngList();
+}
+
+function saveProject(id){
+  const draft = window._projDraft;
+  draft.numeroProceso = document.getElementById('pNum').value.trim();
+  draft.contratista   = document.getElementById('pCont').value.trim();
+  draft.interventoria = document.getElementById('pInt').value.trim();
+  draft.ingenierosVtc = draft.ingenierosVtc.filter(e=>e.nombre.trim());
+
+  if(!draft.numeroProceso){ alert('El número de proceso es obligatorio.'); return; }
+  if(!draft.ingenierosVtc.length) draft.ingenierosVtc.push(Object.assign({id: uid()}, DEFAULT_ING));
+
+  if(id){
+    const idx = DB.projects.findIndex(p=>p.id===id);
+    if(idx > -1){
+      // Preserve jornada & history
+      draft.jornada = DB.projects[idx].jornada;
+      draft.history = DB.projects[idx].history;
+      DB.projects[idx] = draft;
+    }
+  } else {
+    DB.projects.push(draft);
+    DB.activeProjectId = draft.id;
+  }
+  closeModal(); save(); render();
+  toast(id ? 'Proyecto actualizado' : 'Proyecto creado');
+}
+
+function deleteProject(id){
+  if(!confirm('¿Eliminar este proyecto y todo su contenido? No se puede deshacer.')) return;
+  DB.projects = DB.projects.filter(p=>p.id!==id);
+  if(DB.activeProjectId === id) DB.activeProjectId = null;
+  save(); render();
+  toast('Proyecto eliminado');
+}
+
+/* =========================================================
+   HISTORIAL
+   ========================================================= */
+function archivarActual(){
+  const proj = getActiveProject();
+  if(!proj) return;
+  const j = proj.jornada;
+  const tieneDatos = j.fronts.some(f =>
+    f.direccion || f.actividades.length || Object.keys(f.contratista).length ||
+    Object.keys(f.interventoria).length || f.hallazgos.length
+  );
+  if(!tieneDatos) return;
+  proj.history.unshift(JSON.parse(JSON.stringify(j)));
+  if(proj.history.length > 40) proj.history.pop();
+}
+
+function nuevaJornada(repetirEstructura){
+  const proj = getActiveProject();
+  if(!proj) return;
+  const msg = repetirEstructura
+    ? 'Se creará una jornada nueva copiando los frentes y el personal marcado presente (sin horas ni actividades). ¿Continuar?'
+    : 'La jornada actual se archivará en el historial y se iniciará una nueva. ¿Continuar?';
+  if(!confirm(msg)) return;
+
+  archivarActual();
+  const prev = proj.jornada;
+  const nueva = blankJornada();
+  nueva.engineId = prev.engineId;
+  nueva.acompanantes = prev.acompanantes || '';
+
+  if(repetirEstructura){
+    nueva.fronts = prev.fronts.map((f, i)=>{
+      const nf = newFront(i+1);
+      nf.nombre = f.nombre;
+      nf.direccion = f.direccion;
+      nf.coordenadas = f.coordenadas;
+      Object.keys(f.contratista).forEach(id=>{
+        if(f.contratista[id].presente) nf.contratista[id] = {presente:true, hora:'', actividad:'', obs:''};
+      });
+      Object.keys(f.interventoria).forEach(id=>{
+        if(f.interventoria[id].presente) nf.interventoria[id] = {presente:true, hora:'', actividad:'', obs:'', justificacion:''};
+      });
+      return nf;
+    });
+    if(!nueva.fronts.length) nueva.fronts = [newFront(1)];
+  }
+
+  proj.jornada = nueva;
+  activeTab = 0;
+  save(); render();
+  toast(repetirEstructura ? 'Jornada creada con la misma estructura' : 'Nueva jornada iniciada');
+}
+
+function showHistory(){
+  const proj = getActiveProject();
+  if(!proj) return;
+  const h = proj.history || [];
+  const body = h.length
+    ? h.map((j,i)=>`
+        <div class="hist-row">
+          <div>
+            <b>${esc(j.fecha)}</b> · ${esc(j.acompanantes || '—')} · ${j.fronts.length} frente(s)
+            <div class="muted">${esc(j.fronts.map(f=>f.nombre).join(' · '))}</div>
+          </div>
+          <div class="hist-actions">
+            <button class="mini" onclick="loadHist(${i})">Cargar</button>
+            <button class="mini danger" onclick="delHist(${i})">✕</button>
+          </div>
+        </div>`).join('')
+    : '<p class="muted">Todavía no hay jornadas archivadas en este proyecto.</p>';
+  showModal(`<h3>Historial del proyecto</h3>${body}
+    <div class="modal-actions"><button onclick="closeModal()">Cerrar</button></div>`);
+}
+
+function loadHist(i){
+  const proj = getActiveProject();
+  if(!proj) return;
+  if(!confirm('¿Cargar esta jornada? La jornada actual se archivará en el historial.')) return;
+  archivarActual();
+  proj.jornada = JSON.parse(JSON.stringify(proj.history[i]));
+  proj.history.splice(i,1);
+  activeTab = 0;
+  closeModal(); save(); render();
+  toast('Jornada cargada');
+}
+
+function delHist(i){
+  const proj = getActiveProject();
+  if(!proj) return;
+  if(!confirm('¿Eliminar esta jornada del historial?')) return;
+  proj.history.splice(i,1);
+  save(); showHistory();
+}
+
+/* =========================================================
+   EXPORTAR / IMPORTAR
+   ========================================================= */
+function exportJSON(){
+  const data = {
+    version: '2.0',
+    exportedAt: new Date().toISOString(),
+    projects: DB.projects,
+    catalogs: DB.catalogs
+  };
+  const blob = new Blob([JSON.stringify(data, null, 2)], {type:'application/json'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'VTC_' + hoy() + '.json';
+  a.click();
+  URL.revokeObjectURL(a.href);
+  toast('Respaldo JSON exportado');
+}
+
+function importJSON(input){
+  const file = input.files && input.files[0];
+  if(!file) return;
+  const reader = new FileReader();
+  reader.onload = ()=>{
+    try{
+      const data = JSON.parse(reader.result);
+      if(!data.projects && !data.jornada) throw new Error('Estructura no válida');
+      if(!confirm('¿Reemplazar TODOS los datos actuales con el archivo importado?')) return;
+      if(data.jornada && !data.projects){ DB = data; }
+      else { DB = { projects: data.projects, catalogs: data.catalogs, activeProjectId: null }; }
+      initDB();
+      DB.activeProjectId = DB.projects[0]?.id || null;
+      activeTab = 0;
+      save(); render();
+      toast('Datos importados correctamente');
+    }catch(e){
+      alert('El archivo no es un respaldo VTC válido.');
+    }
+  };
+  reader.readAsText(file);
+  input.value = '';
+}
+
+/* =========================================================
+   RENDER
+   ========================================================= */
+function render(){
+  updateTopBar();
+  const proj = getActiveProject();
+  if(!proj){
+    $('#app').innerHTML = renderProjectSelector();
+    $('#mobileBottomNav').innerHTML = '';
+    return;
+  }
+
+  const j = proj.jornada;
+  if(typeof activeTab === 'number' && activeTab >= j.fronts.length) activeTab = 0;
+
+  $('#cargosList').innerHTML = CARGOS.map(c=>`<option value="${esc(c)}">`).join('');
+  const maqTipos = [...new Set(j.fronts.flatMap(f=>f.maquinaria.map(m=>m.tipo)).filter(Boolean))];
+  $('#maqList').innerHTML = maqTipos.map(c=>`<option value="${esc(c)}">`).join('');
+
+  $('#app').innerHTML = `
+    ${renderJornada(proj)}
+    ${renderTabs()}
+    ${j.fronts.map((f,i)=>renderFront(i,f)).join('')}
+    ${renderResumen()}
+  `;
+  setTab(activeTab);
+  renderMobileNav();
+}
+
+function updateTopBar(){
+  const proj = getActiveProject();
+  const title = $('#brandTitle');
+  const sub = $('#brandSub');
+  const actions = $('#topActions');
+
+  if(proj){
+    title.textContent = proj.numeroProceso || 'Proyecto';
+    sub.textContent = proj.contratista || '—';
+    actions.innerHTML = `
+      <button class="ghost" onclick="backToProjects()">← Proyectos</button>
+      <button class="ghost" onclick="showHistory()">Historial</button>
+      <button class="ghost" onclick="exportJSON()">Exportar</button>
+      <button class="ghost" onclick="document.getElementById('inpImport').click()">Importar</button>
+      <button class="ghost" onclick="window.print()">Imprimir / PDF</button>
+      <button class="ghost" onclick="forzarGuardado()">Guardar</button>
+      <button class="ghost" onclick="nuevaJornada(false)">＋ Nueva jornada</button>
+      <button class="ghost" onclick="nuevaJornada(true)">↻ Repetir</button>
+    `;
+  } else {
+    title.textContent = 'FORMATO DE VISITA TÉCNICA – VTC';
+    sub.textContent = 'Control Preventivo · SI-SI-LP-004-2025';
+    actions.innerHTML = `
+      <button class="ghost" onclick="exportJSON()">Exportar todo</button>
+      <button class="ghost" onclick="document.getElementById('inpImport').click()">Importar</button>
+    `;
+  }
+}
+
+function setTab(t){
+  activeTab = t;
+  $$('[data-tab]').forEach(el => el.classList.toggle('active', el.dataset.tab == t));
+  $$('.front').forEach(el => el.classList.toggle('hidden', el.dataset.idx != t));
+  renderMobileNav();
+}
+
+function renderMobileNav(){
+  const nav = document.getElementById('mobileBottomNav');
+  if(!nav) return;
+  const proj = getActiveProject();
+  if(!proj){ nav.innerHTML = ''; return; }
+  const fronts = proj.jornada.fronts;
+  nav.innerHTML = fronts.map((f,i)=>
+    `<button class="${activeTab===i?'active':''}" onclick="setTab(${i})">${esc(f.nombre||'Frente '+(i+1))}</button>`
+  ).join('') +
+  `<button class="${activeTab==='resumen'?'active':''}" onclick="setTab('resumen')">Resumen</button>
+   <button onclick="addFront()">＋ Frente</button>`;
+}
+
+/* ---------- Scroll hide/show bars ---------- */
+let lastScrollY = 0, ticking = false;
+window.addEventListener('scroll', ()=>{
+  if(ticking) return;
+  ticking = true;
+  requestAnimationFrame(()=>{
+    const y = window.scrollY;
+    const diff = y - lastScrollY;
+    if(y > 120 && diff > 4){
+      document.body.classList.add('hide-bars');
+    } else if(diff < -4 || y < 60){
+      document.body.classList.remove('hide-bars');
+    }
+    lastScrollY = y;
+    ticking = false;
+  });
+}, {passive:true});
+
+/* =========================================================
+   SELECTOR DE PROYECTOS
+   ========================================================= */
+function renderProjectSelector(){
+  const projects = DB.projects || [];
+  const cards = projects.map(p=>`
+    <div class="project-card" onclick="openProject('${p.id}')">
+      <div class="proj-head">
+        <div class="proj-num">${esc(p.numeroProceso || 'Sin número')}</div>
+        <button class="mini no-print" onclick="event.stopPropagation();editProject('${p.id}')">✏</button>
+      </div>
+      <div class="proj-row"><span class="muted">Contratista:</span> ${esc(p.contratista || '—')}</div>
+      <div class="proj-row"><span class="muted">Interventoría:</span> ${esc(p.interventoria || '—')}</div>
+      <div class="proj-row"><span class="muted">Ingenieros:</span> ${p.ingenierosVtc.map(i=>esc(i.nombre)).join(', ') || '—'}</div>
+      <div class="proj-foot">
+        <span class="muted">${p.jornada?.fronts?.length || 0} frente(s) · ${p.history?.length || 0} jornada(s) archivada(s)</span>
+        <button class="mini danger no-print" onclick="event.stopPropagation();deleteProject('${p.id}')">Eliminar</button>
+      </div>
+    </div>
+  `).join('');
+
+  return `
+    <div class="panel" style="max-width:1000px;margin:20px auto">
+      <h2>Proyectos
+        <span class="badge">${projects.length} registrado(s)</span>
+        <span class="spacer"></span>
+        <button class="primary no-print" onclick="editProject(null)">＋ Nuevo proyecto</button>
+      </h2>
+      <p class="muted" style="margin-top:0">Selecciona un proyecto para iniciar o continuar la visita técnica. Cada proyecto guarda sus propios frentes, personal y hallazgos.</p>
+      <div class="project-grid">
+        ${cards || '<p class="muted" style="grid-column:1/-1">Todavía no hay proyectos. Crea uno nuevo para comenzar.</p>'}
+      </div>
+    </div>
+  `;
+}
+
+/* =========================================================
+   JORNADA
+   ========================================================= */
+function renderJornada(proj){
+  const j = proj.jornada;
+  const eng = getCurrentEngineer();
+  return `
+  <div class="panel">
+    <h2>Jornada de visitas
+      <span class="badge">${esc(proj.numeroProceso || '—')}</span>
+      <span class="badge alt">${j.fronts.length} frente(s)</span>
+      <span class="spacer"></span>
+      <button class="mini no-print" onclick="editProject('${proj.id}')">✏ Proyecto</button>
+    </h2>
+    <div class="grid3">
+      <label>Fecha<input type="date" value="${esc(j.fecha)}" onchange="setFecha(this.value)"></label>
+      <label>Día de la semana<input id="diaSemana" value="${esc(j.dia)}" readonly></label>
+      <label>Clima<input value="${esc(j.clima)}" oninput="updJ('clima',this.value)" placeholder="Soleado / lluvia / nublado"></label>
+      <label>Ingeniero VTC que visita
+        <select onchange="updJ('engineId',this.value);render()">
+          ${proj.ingenierosVtc.map(e=>`<option value="${e.id}" ${j.engineId===e.id?'selected':''}>${esc(e.nombre)}</option>`).join('')}
+        </select>
+      </label>
+      <label>Acompañantes VTC<input value="${esc(j.acompanantes)}" oninput="updJ('acompanantes',this.value)" placeholder="Nombres"></label>
+      <label>Contratista<input value="${esc(proj.contratista)}" readonly></label>
+      <label>Interventoría<input value="${esc(proj.interventoria)}" readonly></label>
+      <label>N° de frentes activos en la jornada<input value="${j.fronts.length}" readonly></label>
+    </div>
+    ${eng ? `<div class="muted" style="margin-top:8px"><b>${esc(eng.nombre)}</b> · ${esc(eng.cargo)} · ${esc(eng.tarjeta)}</div>` : ''}
+  </div>`;
+}
+
+/* ---------- Pestañas ---------- */
+function renderTabs(){
+  const j = J();
+  let h = '<div class="tabs no-print">';
+  j.fronts.forEach((f,i)=>{
+    h += `<button class="tab" data-tab="${i}" onclick="setTab(${i})">${esc(f.nombre || 'Frente '+(i+1))}</button>`;
+  });
+  h += `<button class="tab" data-tab="resumen" onclick="setTab('resumen')">Resumen de jornada</button>`;
+  h += `<button class="tab add" onclick="addFront()">＋ Agregar frente</button>`;
+  h += '</div>';
+  return h;
+}
+
+function renderFront(fi, f){
+  return `<section class="front" data-idx="${fi}">
+    ${renderA(fi,f)}
+    ${renderB(fi,f)}
+    ${renderOperativo(fi,f)}
+    ${renderC(fi,f)}
+    ${renderD(fi,f)}
+    ${renderE(fi,f)}
+    ${renderF(fi,f)}
+    ${renderG(fi,f)}
+    ${renderH(fi,f)}
+    ${renderI(fi,f)}
+    ${renderJ(fi,f)}
+    ${renderK(fi,f)}
+    ${renderL(fi,f)}
+    ${renderM(fi,f)}
+  </section>`;
+}
+
+/* ---------- A ---------- */
+function renderA(fi, f){
+  return `
+  <div class="panel">
+    <h2>A. Datos generales del frente
+      <span class="badge alt">${esc(f.nombre || 'Frente '+(fi+1))}</span>
+      <span class="spacer"></span>
+      <button class="mini danger no-print" onclick="delFront(${fi})">Eliminar frente</button>
+    </h2>
+    <div class="grid3">
+      <label>Frente de obra<input value="${esc(f.nombre)}" oninput="updFront(${fi},'nombre',this.value)"></label>
+      <label>Dirección / abscisa<input value="${esc(f.direccion)}" oninput="updFront(${fi},'direccion',this.value)"></label>
+      <label>Coordenadas
+        <div style="display:flex;gap:6px">
+          <input value="${esc(f.coordenadas)}" oninput="updFront(${fi},'coordenadas',this.value)" placeholder="lat, long">
+          <button type="button" class="no-print" onclick="gpsInto(${fi},'coordenadas')" title="Usar GPS">⌖ GPS</button>
+        </div>
+      </label>
+      <label>Hora de llegada<input type="time" value="${esc(f.horaLlegada)}" oninput="updFront(${fi},'horaLlegada',this.value)"></label>
+      <label>¿Se permite el ingreso?
+        <select onchange="updFront(${fi},'acceso',this.value)">${opts(['','Sí','No','Con restricciones'], f.acceso)}</select>
+      </label>
+    </div>
+    <label style="margin-top:10px">Observaciones de acceso
+      <textarea oninput="updFront(${fi},'obsAcceso',this.value)">${esc(f.obsAcceso)}</textarea>
+    </label>
+  </div>`;
+}
+
+/* ---------- B: Contratista (solo los profesionales registrados) ---------- */
+function renderB(fi, f){
+  const cat = DB.catalogs.contratista;
+  const presentes = cat.filter(p => f.contratista[p.id] && f.contratista[p.id].presente);
+  const ausentes  = cat.filter(p => !(f.contratista[p.id] && f.contratista[p.id].presente));
+
+  const filas = presentes.length ? presentes.map(p=>{
+    const e = f.contratista[p.id] || {};
+    const esSST = esCargoSST(p.cargo);
+    return `<tr class="presente">
+      <td style="min-width:180px"><input value="${esc(p.nombre)}" oninput="updCat('contratista','${p.id}','nombre',this.value)"></td>
+      <td style="min-width:160px"><input value="${esc(p.cargo)}" list="cargosList" oninput="updCat('contratista','${p.id}','cargo',this.value)"></td>
+      <td style="width:150px"><input value="${esc(p.tarjetaProfesional||'')}" oninput="updCat('contratista','${p.id}','tarjetaProfesional',this.value)" placeholder="${esSST?'N° resolución':'N° tarjeta'}"></td>
+      <td style="width:100px"><input type="time" value="${esc(e.hora||'')}" oninput="updPersona(${fi},'contratista','${p.id}','hora',this.value)"></td>
+      <td><input value="${esc(e.actividad||'')}" oninput="updPersona(${fi},'contratista','${p.id}','actividad',this.value)" placeholder="Actividad"></td>
+      <td><input value="${esc(e.obs||'')}" oninput="updPersona(${fi},'contratista','${p.id}','obs',this.value)" placeholder="Obs."></td>
+      <td class="no-print" style="width:36px"><button class="mini danger" onclick="togglePresente(${fi},'contratista','${p.id}',false)" title="Quitar del frente">✕</button></td>
+    </tr>`;
+  }).join('') : `<tr><td colspan="7" class="muted" style="text-align:center;padding:12px">Aún no hay personal del Contratista en este frente. Agréguelo con ＋ Nueva persona o desde la lista de abajo.</td></tr>`;
+
+  const chips = ausentes.length
+    ? ausentes.map(p =>
+        `<button class="chip" onclick="togglePresente(${fi},'contratista','${p.id}',true)">＋ ${esc(p.nombre || '(sin nombre)')}<span class="c">${esc(p.cargo||'')}</span></button>`
+      ).join('')
+    : '<span class="muted">Todo el personal del catálogo está en este frente.</span>';
+
+  return `
+  <div class="panel">
+    <h2>B. Personal del Contratista en obra <span class="badge alt">${presentes.length} presente(s)</span>
+      <span class="spacer"></span>
+      <button class="mini no-print" onclick="modalCatalogo('contratista')" title="Ver / limpiar catálogo">🗂 Catálogo</button>
+      <button class="mini no-print" onclick="modalPersona(${fi},'contratista')">＋ Nueva persona</button>
+    </h2>
+    <div class="tbl-wrap">
+      <table class="tbl">
+        <thead><tr>
+          <th>Nombre completo</th><th>Cargo</th><th>Tarjeta / Resolución</th>
+          <th>Hora</th><th>Actividad</th><th>Obs.</th><th></th>
+        </tr></thead>
+        <tbody>${filas}</tbody>
+      </table>
+    </div>
+    <h4>Agregar del catálogo al frente</h4>
+    <div class="chips">${chips}</div>
+    <label style="margin-top:10px">Observaciones B
+      <textarea oninput="updFront(${fi},'obsB',this.value)" placeholder="Notas sobre el personal del contratista">${esc(f.obsB||'')}</textarea>
+    </label>
+    <div class="note">La tabla muestra solo el personal que se registró (marcó presente) en este frente. Use ✕ para retirarlo.</div>
+  </div>`;
+}
+
+/* ---------- C: Personal operativo ---------- */
+function renderOperativo(fi, f){
+  const roles = ['Maestro','Oficial','Ayudante','Controladores de tráfico','Operador de maquinaria','Otro'];
+  const filas = f.personalOperativo.map((e,ri)=>`
+    <tr>
+      <td>${esc(e.cargo)}</td>
+      <td style="width:120px">${esc(e.cantidad)}</td>
+      <td class="no-print" style="width:36px"><button class="mini danger" onclick="delRow(${fi},'personalOperativo',${ri})">✕</button></td>
+    </tr>`).join('');
+
+  return `
+  <div class="panel">
+    <h2>C. Personal operativo de obra</h2>
+    <div class="grid3" style="align-items:end">
+      <label>Cargo
+        <select id="opCargo_${fi}">${opts(['',...roles],'')}</select>
+      </label>
+      <label>Cantidad
+        <input type="number" id="opCant_${fi}" min="1" inputmode="numeric" placeholder="Ej: 5">
+      </label>
+      <label>&nbsp;
+        <button class="primary" onclick="addOperativo(${fi})">＋ Agregar a la tabla</button>
+      </label>
+    </div>
+    ${f.personalOperativo.length ? `
+    <div class="tbl-wrap" style="margin-top:12px">
+      <table class="tbl">
+        <thead><tr><th>Cargo</th><th>Cantidad</th><th></th></tr></thead>
+        <tbody>${filas}</tbody>
+      </table>
+    </div>` : '<p class="muted" style="margin-top:12px">Sin personal operativo registrado.</p>'}
+    <label style="margin-top:10px">Observaciones del personal operativo
+      <textarea oninput="updFront(${fi},'obsOperativo',this.value)">${esc(f.obsOperativo||'')}</textarea>
+    </label>
+  </div>`;
+}
+
+function addOperativo(fi){
+  const cargo = document.getElementById('opCargo_'+fi).value;
+  const cant  = document.getElementById('opCant_'+fi).value;
+  if(!cargo || !cant){ toast('Seleccione cargo y cantidad'); return; }
+  J().fronts[fi].personalOperativo.push({cargo, cantidad:cant});
+  save(); render();
+  toast('Personal operativo agregado');
+}
+
+/* ---------- D: Interventoría ---------- */
+function renderC(fi, f){
+  const cat = DB.catalogs.interventoria;
+  const ofertados = cat.filter(p => p.ofertado);
+
+  // La tabla fija de 4 perfiles ofertados solo aplica al proceso SI-SI-LP-004-2025
+  const proj = getActiveProject();
+  const esProcesoSII = /SI-SI-LP-004-2025/i.test((proj && proj.numeroProceso) || '');
+
+  const filasOf = ofertados.map(p=>{
+    const e = f.interventoria[p.id] || {presente:false, hora:'', justificacion:''};
+    return `<tr>
+      <td><b>${esc(p.cargo || 'Perfil')}</b><br><span class="muted">${esc(p.nombre)}</span></td>
+      <td style="text-align:center;width:80px">
+        <input type="checkbox" ${e.presente ? 'checked' : ''}
+          onchange="togglePresente(${fi},'interventoria','${p.id}',this.checked)">
+      </td>
+      <td style="width:110px">
+        <input type="time" value="${esc(e.hora||'')}" ${e.presente?'':'disabled'}
+          oninput="updPersona(${fi},'interventoria','${p.id}','hora',this.value)">
+      </td>
+      <td>
+        <input value="${esc(e.justificacion||'')}" ${e.presente?'disabled':''}
+          placeholder="${e.presente ? '—' : 'Excusa textual + hora (obligatorio si falta)'}"
+          oninput="updPersona(${fi},'interventoria','${p.id}','justificacion',this.value)">
+      </td>
+    </tr>`;
+  }).join('');
+
+  const tablaOfertados = esProcesoSII ? `
+    <h4>Verificación de los cuatro perfiles ofertados</h4>
+    <div class="tbl-wrap">
+      <table class="tbl">
+        <thead><tr>
+          <th>Perfil ofertado</th><th>¿Presente?</th><th>Hora</th><th>Justificación de ausencia</th>
+        </tr></thead>
+        <tbody>${filasOf}</tbody>
+      </table>
+    </div>` : '';
+
+  const otrosPresentes = Object.keys(f.interventoria).filter(id=>{
+    const e = f.interventoria[id];
+    if(!e || !e.presente) return false;
+    const p = cat.find(x => x.id === id);
+    // En SI-SI-LP-004-2025 los 4 ofertados ya están en la tabla fija
+    return esProcesoSII ? (!p || !p.ofertado) : true;
+  });
+
+  const otrosDisp = cat.filter(p => {
+    if(f.interventoria[p.id] && f.interventoria[p.id].presente) return false;
+    return esProcesoSII ? !p.ofertado : true;
+  });
+
+  const chips = otrosDisp.length
+    ? otrosDisp.map(p =>
+        `<button class="chip" onclick="togglePresente(${fi},'interventoria','${p.id}',true)">＋ ${esc(p.nombre)}<span class="c">${esc(p.cargo||'')}</span></button>`
+      ).join('')
+    : '<span class="muted">Sin otros profesionales disponibles en el catálogo.</span>';
+
+  const filasOtros = otrosPresentes.map(id=>{
+    const p = getPersona('interventoria', id);
+    const e = f.interventoria[id];
+    return `<tr>
+      <td><input value="${esc(p.nombre)}" oninput="updCat('interventoria','${id}','nombre',this.value)"></td>
+      <td style="width:160px"><input value="${esc(p.cargo)}" list="cargosList" oninput="updCat('interventoria','${id}','cargo',this.value)"></td>
+      <td style="width:150px"><input value="${esc(p.tarjetaProfesional||'')}" oninput="updCat('interventoria','${id}','tarjetaProfesional',this.value)" placeholder="N° tarjeta / resolución"></td>
+      <td style="width:95px"><input type="time" value="${esc(e.hora||'')}" oninput="updPersona(${fi},'interventoria','${id}','hora',this.value)"></td>
+      <td><input value="${esc(e.actividad||'')}" oninput="updPersona(${fi},'interventoria','${id}','actividad',this.value)"></td>
+      <td><input value="${esc(e.obs||'')}" oninput="updPersona(${fi},'interventoria','${id}','obs',this.value)"></td>
+      <td class="no-print" style="width:36px">
+        <button class="mini danger" onclick="togglePresente(${fi},'interventoria','${id}',false)" title="Quitar del frente">✕</button>
+      </td>
+    </tr>`;
+  }).join('');
+
+  const preguntas = PREGUNTAS.map((q,i)=>`
+    <label style="margin-top:8px">${i+1}. ${esc(q.t)}
+      <textarea oninput="updSub(${fi},'preguntas','${q.key}','r',this.value)">${esc((f.preguntas[q.key]||{}).r || '')}</textarea>
+    </label>`).join('');
+
+  return `
+  <div class="panel">
+    <h2>D. Personal de la Interventoría en obra
+      <span class="spacer"></span>
+      <button class="mini no-print" onclick="modalCatalogo('interventoria')" title="Ver / limpiar catálogo">🗂 Catálogo</button>
+    </h2>
+
+    ${tablaOfertados}
+
+    <h4>${esProcesoSII ? 'Otros profesionales de Interventoría' : 'Profesionales de Interventoría en obra'}</h4>
+    <div class="chips">
+      ${chips}
+      <button class="chip new" onclick="modalPersona(${fi},'interventoria')">＋ Profesional nuevo</button>
+    </div>
+    ${otrosPresentes.length ? `
+      <div class="tbl-wrap">
+      <table class="tbl">
+        <thead><tr>
+          <th>Nombre completo</th><th>Cargo / perfil</th><th>Tarjeta / Resolución</th><th>Hora</th>
+          <th>Actividades que supervisa</th><th>Observaciones</th><th class="no-print"></th>
+        </tr></thead>
+        <tbody>${filasOtros}</tbody>
+      </table>
+      </div>` : '<p class="muted">Sin otros profesionales registrados.</p>'}
+
+    <label style="margin-top:10px">Observaciones D
+      <textarea oninput="updFront(${fi},'obsC',this.value)" placeholder="Notas sobre el personal de interventoría">${esc(f.obsC||'')}</textarea>
+    </label>
+    <h4>Preguntas obligatorias al personal de Interventoría presente</h4>
+    ${preguntas}
+    <div class="note">Transcriba la respuesta textual: es la evidencia que le da fuerza al control preventivo.</div>
+  </div>`;
+}
+
+/* ---------- E: Maquinaria ---------- */
+function renderD(fi, f){
+  const filas = f.maquinaria.map((m,ri)=>`
+    <tr>
+      <td><input value="${esc(m.tipo)}" list="maqList" oninput="updRow(${fi},'maquinaria',${ri},'tipo',this.value)"></td>
+      <td><input value="${esc(m.marca)}" oninput="updRow(${fi},'maquinaria',${ri},'marca',this.value)"></td>
+      <td><input value="${esc(m.modelo)}" oninput="updRow(${fi},'maquinaria',${ri},'modelo',this.value)"></td>
+      <td><input value="${esc(m.placa)}" oninput="updRow(${fi},'maquinaria',${ri},'placa',this.value)"></td>
+      <td><input value="${esc(m.operador)}" oninput="updRow(${fi},'maquinaria',${ri},'operador',this.value)"></td>
+      <td><input value="${esc(m.licencia)}" oninput="updRow(${fi},'maquinaria',${ri},'licencia',this.value)"></td>
+      <td style="width:110px"><select onchange="updRow(${fi},'maquinaria',${ri},'preoperacional',this.value)">${opts(['','Sí','No'], m.preoperacional)}</select></td>
+      <td><input value="${esc(m.obs)}" oninput="updRow(${fi},'maquinaria',${ri},'obs',this.value)"></td>
+      <td class="no-print" style="width:36px"><button class="mini danger" onclick="delRow(${fi},'maquinaria',${ri})">✕</button></td>
+    </tr>`).join('');
+
+  return `
+  <div class="panel">
+    <h2>E. Maquinaria y equipo
+      <span class="spacer"></span>
+      <button class="mini no-print" onclick="addRow(${fi},'maquinaria',{tipo:'',marca:'',modelo:'',placa:'',operador:'',licencia:'',preoperacional:'',obs:''})">＋ Equipo</button>
+    </h2>
+    ${f.maquinaria.length ? `
+    <div class="tbl-wrap">
+      <table class="tbl">
+        <thead><tr>
+          <th>Tipo</th><th>Marca</th><th>Modelo</th><th>Placa / serial</th>
+          <th>Operador</th><th>Licencia / certificación</th><th>Preoperacional</th><th>Observaciones</th><th class="no-print"></th>
+        </tr></thead>
+        <tbody>${filas}</tbody>
+      </table>
+    </div>` : '<p class="muted">Sin maquinaria registrada en este frente.</p>'}
+    <label style="margin-top:12px">Herramienta menor
+      <input value="${esc(f.herramienta||'')}" oninput="updFront(${fi},'herramienta',this.value)" placeholder="Descripción de herramienta menor observada">
+    </label>
+  </div>`;
+}
+
+/* ---------- F: Actividades ---------- */
+function renderE(fi, f){
+  const filas = f.actividades.map((a,ri)=>`
+    <tr>
+      <td><input value="${esc(a.actividad)}" oninput="updRow(${fi},'actividades',${ri},'actividad',this.value)"></td>
+      <td><input value="${esc(a.ubicacion)}" oninput="updRow(${fi},'actividades',${ri},'ubicacion',this.value)"></td>
+      <td style="width:100px"><select onchange="updRow(${fi},'actividades',${ri},'programada',this.value)">${opts(['','Sí','No'], a.programada)}</select></td>
+      <td style="width:100px"><select onchange="updRow(${fi},'actividades',${ri},'ejecucion',this.value)">${opts(['','Sí','No'], a.ejecucion)}</select></td>
+      <td style="width:110px"><input value="${esc(a.cantidad)}" oninput="updRow(${fi},'actividades',${ri},'cantidad',this.value)" placeholder="m / m³ / und"></td>
+      <td><input value="${esc(a.metodo)}" oninput="updRow(${fi},'actividades',${ri},'metodo',this.value)"></td>
+      <td><input value="${esc(a.obs)}" oninput="updRow(${fi},'actividades',${ri},'obs',this.value)"></td>
+      <td class="no-print" style="width:36px"><button class="mini danger" onclick="delRow(${fi},'actividades',${ri})">✕</button></td>
+    </tr>`).join('');
+
+  const criticas = CRITICAS.map(c=>`
+    <label class="check-item">
+      <input type="checkbox" ${f.criticas.includes(c)?'checked':''} onchange="toggleCritica(${fi},'${esc(c)}',this.checked)">
+      <span>${esc(c)}</span>
+    </label>`).join('');
+
+  return `
+  <div class="panel">
+    <h2>F. Actividades ejecutadas y programadas
+      <span class="spacer"></span>
+      <button class="mini no-print" onclick="addRow(${fi},'actividades',{actividad:'',ubicacion:'',programada:'',ejecucion:'',cantidad:'',metodo:'',obs:''})">＋ Actividad</button>
+    </h2>
+    ${f.actividades.length ? `
+    <div class="tbl-wrap">
+      <table class="tbl">
+        <thead><tr>
+          <th>Actividad</th><th>Ubicación</th><th>¿Programada?</th><th>¿En ejecución?</th>
+          <th>Cantidad ejecutada</th><th>Método</th><th>Observaciones</th><th class="no-print"></th>
+        </tr></thead>
+        <tbody>${filas}</tbody>
+      </table>
+    </div>` : '<p class="muted">Sin actividades registradas.</p>'}
+
+    <h4>Actividades de calidad crítica observadas</h4>
+    <div class="check-list">${criticas}</div>
+    <label style="margin-top:10px">Otra actividad crítica
+      <input value="${esc(f.criticaOtra)}" oninput="updFront(${fi},'criticaOtra',this.value)">
+    </label>
+  </div>`;
+}
+
+/* ---------- G: Verificación documental ---------- */
+function renderF(fi, f){
+  const profesionales = [...DB.catalogs.contratista, ...DB.catalogs.interventoria].filter(p=>p.nombre);
+  const quienOpts = ['','No aplica',...profesionales.map(p=>`${p.nombre} · ${p.cargo||''}`)];
+
+  const filas = DOCS.map(doc=>{
+    const e = f.docs[doc] || {};
+    return `<tr>
+      <td style="min-width:210px"><b>${esc(doc)}</b></td>
+      <td style="min-width:180px"><select onchange="updSub(${fi},'docs','${esc(doc)}','respondio',this.value)">${opts(quienOpts,e.respondio)}</select></td>
+      <td style="width:100px"><select onchange="updSub(${fi},'docs','${esc(doc)}','enObra',this.value)">${opts(['','Sí','No'], e.enObra)}</select></td>
+      <td style="width:105px"><select onchange="updSub(${fi},'docs','${esc(doc)}','actualizado',this.value)">${opts(['','Sí','No'], e.actualizado)}</select></td>
+      <td style="width:95px"><select onchange="updSub(${fi},'docs','${esc(doc)}','firmado',this.value)">${opts(['','Sí','No'], e.firmado)}</select></td>
+      <td style="min-width:220px"><input value="${esc(e.obs)}" placeholder="Quién dio la excusa, qué dijo textualmente y la hora"
+           oninput="updSub(${fi},'docs','${esc(doc)}','obs',this.value)"></td>
+    </tr>`;
+  }).join('');
+
+  return `
+  <div class="panel">
+    <h2>G. Verificación documental en obra</h2>
+    <div class="tbl-wrap">
+      <table class="tbl">
+        <thead><tr>
+          <th>Documento</th><th>Profesional que respondió</th><th>¿En obra?</th><th>¿Actualizado?</th><th>¿Firmado?</th>
+          <th>Observaciones / excusa (textual + hora)</th>
+        </tr></thead>
+        <tbody>${filas}</tbody>
+      </table>
+    </div>
+    <div class="note">Regla: si un documento no está, anote quién dio la excusa, qué dijo textualmente y la hora.</div>
+  </div>`;
+}
+
+/* ---------- H, I, J: Tablas genéricas ---------- */
+function tablaSimple(fi, f, group, items, titulo, campo){
+  const filas = items.map(it=>{
+    const nombre = Array.isArray(it) ? it[0] : it;
+    const opciones = Array.isArray(it) ? it[1] : ['Sí','No'];
+    const e = f[group][nombre] || {};
+    return `<tr>
+      <td style="min-width:240px"><b>${esc(nombre)}</b></td>
+      <td style="width:140px"><select onchange="updSub(${fi},'${group}','${esc(nombre)}','v',this.value)">${opts(['',...opciones], e.v)}</select></td>
+      <td><input value="${esc(e.obs)}" oninput="updSub(${fi},'${group}','${esc(nombre)}','obs',this.value)" placeholder="${esc(campo||'Observación')}"></td>
+    </tr>`;
+  }).join('');
+
+  return `
+  <div class="panel">
+    <h2>${titulo}</h2>
+    <div class="tbl-wrap">
+      <table class="tbl">
+        <thead><tr><th>Aspecto</th><th>¿Cumple / verificado?</th><th>Observación</th></tr></thead>
+        <tbody>${filas}</tbody>
+      </table>
+    </div>
+  </div>`;
+}
+
+function renderG(fi,f){ return tablaSimple(fi,f,'calidad',CALIDAD,'H. Calidad de la ejecución','Detalle de lo verificado'); }
+function renderH(fi,f){ return tablaSimple(fi,f,'sst',SST_ITEMS,'I. Seguridad y salud en el trabajo','Observación'); }
+function renderI(fi,f){ return tablaSimple(fi,f,'ambiental',AMB_ITEMS,'J. Gestión ambiental y tránsito','Observación'); }
+
+/* ---------- J: Fotos ---------- */
+function renderJ(fi, f){
+  const filas = f.fotos.map((fo,ri)=>`
+    <tr>
+      <td style="width:40px;text-align:center">${ri+1}</td>
+      <td><input value="${esc(fo.desc)}" oninput="updRow(${fi},'fotos',${ri},'desc',this.value)" placeholder="Descripción de la evidencia"></td>
+      <td style="width:100px"><input type="time" value="${esc(fo.hora)}" oninput="updRow(${fi},'fotos',${ri},'hora',this.value)"></td>
+      <td style="width:150px"><input value="${esc(fo.coord)}" oninput="updRow(${fi},'fotos',${ri},'coord',this.value)" placeholder="lat, long"></td>
+      <td style="width:210px">
+        <input type="file" accept="image/*" onchange="setFoto(${fi},${ri},this)" style="font-size:11px">
+        ${fo.img ? `<img class="thumb" src="${fo.img}" alt="foto">` : (fo.archivo ? `<span class="muted">${esc(fo.archivo)}</span>` : '')}
+      </td>
+      <td class="no-print" style="width:36px"><button class="mini danger" onclick="delRow(${fi},'fotos',${ri})">✕</button></td>
+    </tr>`).join('');
+
+  return `
+  <div class="panel">
+    <h2>K. Evidencia fotográfica
+      <span class="spacer"></span>
+      <button class="mini no-print" onclick="addRow(${fi},'fotos',{desc:'',hora:'',coord:'',archivo:'',img:''})">＋ Foto</button>
+    </h2>
+    ${f.fotos.length ? `
+    <div class="tbl-wrap">
+      <table class="tbl">
+        <thead><tr><th>N°</th><th>Descripción</th><th>Hora</th><th>Coordenadas</th><th>Archivo</th><th class="no-print"></th></tr></thead>
+        <tbody>${filas}</tbody>
+      </table>
+    </div>` : '<p class="muted">Sin fotos registradas.</p>'}
+    <div class="note">
+      <b>Fotos obligatorias:</b> panorámica del frente · personal del Contratista identificable · personal de Interventoría ·
+      bitácora y cronograma (o el sitio donde deberían estar) · maquinaria y preoperacional · actividad en ejecución ·
+      señalización y PMT · documentos revisados · ausencias relevantes.
+    </div>
+  </div>`;
+}
+
+/* ---------- K: Hallazgos ---------- */
+function renderK(fi, f){
+  const filas = f.hallazgos.map((h,ri)=>`
+    <tr>
+      <td style="width:36px;text-align:center">${ri+1}</td>
+      <td><input value="${esc(h.hallazgo)}" oninput="updRow(${fi},'hallazgos',${ri},'hallazgo',this.value)"></td>
+      <td><input value="${esc(h.norma)}" oninput="updRow(${fi},'hallazgos',${ri},'norma',this.value)" placeholder="Obligación / norma"></td>
+      <td><input value="${esc(h.evidencia)}" oninput="updRow(${fi},'hallazgos',${ri},'evidencia',this.value)" placeholder="Foto N°, documento, testimonio"></td>
+      <td style="width:110px"><select onchange="updRow(${fi},'hallazgos',${ri},'gravedad',this.value)">${opts(['','Alta','Media','Baja'], h.gravedad)}</select></td>
+      <td class="no-print" style="width:36px"><button class="mini danger" onclick="delRow(${fi},'hallazgos',${ri})">✕</button></td>
+    </tr>`).join('');
+
+  return `
+  <div class="panel">
+    <h2>L. Hallazgos y no conformidades
+      <span class="spacer"></span>
+      <button class="mini no-print" onclick="addRow(${fi},'hallazgos',{hallazgo:'',norma:'',evidencia:'',gravedad:''})">＋ Hallazgo</button>
+    </h2>
+    ${f.hallazgos.length ? `
+    <div class="tbl-wrap">
+      <table class="tbl">
+        <thead><tr><th>N°</th><th>Hallazgo</th><th>Obligación / norma</th><th>Evidencia</th><th>Gravedad</th><th class="no-print"></th></tr></thead>
+        <tbody>${filas}</tbody>
+      </table>
+    </div>` : '<p class="muted">Sin hallazgos registrados.</p>'}
+    <div class="note">
+      <b>Gravedad — Alta:</b> ausencia de Interventoría, ausencia de bitácora/cronograma, actividad de calidad crítica sin supervisión, riesgo de seguridad.
+      <b>Media:</b> documentos incompletos, señalización deficiente, ausencia de perfiles secundarios.
+      <b>Baja:</b> orden y aseo, detalles de acabado.
+    </div>
+  </div>`;
+}
+
+/* ---------- L: Observaciones generales ---------- */
+function renderL(fi, f){
+  return `
+  <div class="panel">
+    <h2>M. Observaciones generales y recomendaciones</h2>
+    <textarea style="min-height:90px" oninput="updFront(${fi},'obsGenerales',this.value)"
+      placeholder="Observaciones del frente, recomendaciones, compromisos...">${esc(f.obsGenerales)}</textarea>
+  </div>`;
+}
+
+/* ---------- M: Firmas ---------- */
+function profesionalesFrente(fi){
+  const f = J().fronts[fi];
+  const out = [];
+  (DB.catalogs.contratista || []).forEach(p=>{
+    if(p.nombre && f.contratista[p.id] && f.contratista[p.id].presente)
+      out.push({nombre:p.nombre, cargo:p.cargo||'', tarjeta:p.tarjetaProfesional||''});
+  });
+  (DB.catalogs.interventoria || []).forEach(p=>{
+    if(p.nombre && f.interventoria[p.id] && f.interventoria[p.id].presente)
+      out.push({nombre:p.nombre, cargo:p.cargo||'', tarjeta:p.tarjetaProfesional||''});
+  });
+  ((getActiveProject()||{}).ingenierosVtc || []).forEach(p=>{
+    if(p.nombre) out.push({nombre:p.nombre, cargo:p.cargo||'', tarjeta:p.tarjeta||''});
+  });
+  return out.filter(p=>p.cargo);
+}
+
+function renderM(fi, f){
+  if(!Array.isArray(f.firmas) || !f.firmas.length) f.firmas = [blankFirma()];
+
+  // Lista de profesionales: solo los que se registraron (presentes) en este frente + ingenieros VTC
+  const todos = profesionalesFrente(fi);
+  const cargosUnicos = [...new Set(todos.map(p=>p.cargo))];
+
+  const filas = f.firmas.map((fm,ri)=>{
+    const current = fm.rol || '';
+    return `<tr>
+      <td style="min-width:240px">
+        <select onchange="setFirmaCargo(${fi},${ri},this.value)">
+          <option value="">— Seleccionar profesional —</option>
+          ${cargosUnicos.map(c=>`<option value="${esc(c)}" ${current===c?'selected':''}>${esc(c)}</option>`).join('')}
+          ${current && !cargosUnicos.includes(current) ? `<option value="${esc(current)}" selected>${esc(current)}</option>` : ''}
+        </select>
+        <input value="${esc(fm.nombre)}" placeholder="Nombre completo" oninput="updRow(${fi},'firmas',${ri},'nombre',this.value)" style="margin-top:4px;font-size:11.5px">
+        <input value="${esc(fm.tarjeta)}" placeholder="Tarjeta profesional / resolución" oninput="updRow(${fi},'firmas',${ri},'tarjeta',this.value)" style="margin-top:3px;font-size:11.5px">
+      </td>
+      <td style="width:170px;text-align:center">
+        ${fm.firmaImg
+          ? `<img class="thumb sign" src="${fm.firmaImg}" onclick="openSignature(${fi},${ri})" alt="firma">`
+          : `<button class="mini no-print" onclick="openSignature(${fi},${ri})">✍ Firmar</button>`}
+      </td>
+      <td style="width:100px"><input type="time" value="${esc(fm.hora)}" oninput="updRow(${fi},'firmas',${ri},'hora',this.value)"></td>
+      <td class="no-print" style="width:36px"><button class="mini danger" onclick="delRow(${fi},'firmas',${ri})" title="Quitar firma">✕</button></td>
+    </tr>`;
+  }).join('');
+
+  return `
+  <div class="panel">
+    <h2>N. Firmas
+      <span class="spacer"></span>
+      <button class="mini no-print" onclick="addRow(${fi},'firmas',blankFirma())">＋ Firma</button>
+    </h2>
+    <div class="tbl-wrap">
+      <table class="tbl">
+        <thead><tr><th>Cargo + profesional</th><th>Firma</th><th>Hora</th><th></th></tr></thead>
+        <tbody>${filas}</tbody>
+      </table>
+    </div>
+    <div class="note">Si el Contratista o la Interventoría se niegan a firmar, déjelo consignado con nombre, cargo y hora. Use el botón ✍ para abrir el lienzo de firma digital.</div>
+
+    <h4>Hora de salida del frente</h4>
+    <div class="grid3">
+      <label>Hora de salida (último dato de la visita)
+        <input type="time" value="${esc(f.horaSalida)}" oninput="updFront(${fi},'horaSalida',this.value)">
+      </label>
+    </div>
+    <div class="note">Registre la hora de salida al terminar: es el último dato que se diligencia antes de cerrar la visita.</div>
+  </div>`;
+}
+
+function setFirmaCargo(fi, ri, cargo){
+  const f = J().fronts[fi];
+  f.firmas[ri].rol = cargo;
+  const m = profesionalesFrente(fi).find(p=>p.cargo === cargo);
+  if(m){
+    f.firmas[ri].nombre = m.nombre;
+    f.firmas[ri].tarjeta = m.tarjeta;
+  }
+  save(); render();
+}
+
+/* ---------- Resumen ---------- */
+function resumenFila(f){
+  const contratista = Object.keys(f.contratista).filter(id => f.contratista[id].presente).length;
+  const interv = Object.keys(f.interventoria).filter(id => f.interventoria[id].presente).length;
+  const bitacora = (f.docs['Bitácora de obra'] || {}).enObra || 'No';
+  const cronograma = (f.docs['Cronograma de actividades'] || {}).enObra || 'No';
+  const act = (f.actividades.find(a => a.ejecucion === 'Sí') || f.actividades[0] || {}).actividad || '—';
+  const critico = (f.hallazgos.find(h => h.gravedad === 'Alta') || {}).hallazgo || '';
+  return {contratista, interv, bitacora, cronograma, act, critico};
+}
+
+function renderResumen(){
+  const j = J();
+  if(!j) return '';
+  const filas = j.fronts.map((f,i)=>{
+    const r = resumenFila(f);
+    return `<tr>
+      <td><b>${esc(f.nombre || 'Frente '+(i+1))}</b></td>
+      <td>${esc(f.horaLlegada || '—')}${f.horaSalida ? ' · ' + esc(f.horaSalida) : ''}</td>
+      <td>${r.contratista ? 'Sí ('+r.contratista+')' : 'No'}</td>
+      <td>${r.interv ? 'Sí ('+r.interv+')' : 'No'}</td>
+      <td style="color:${r.bitacora==='Sí'?'var(--ok)':'var(--bad)'}">${esc(r.bitacora)}</td>
+      <td style="color:${r.cronograma==='Sí'?'var(--ok)':'var(--bad)'}">${esc(r.cronograma)}</td>
+      <td>${esc(r.act)}</td>
+      <td style="color:${r.critico?'var(--bad)':'inherit'}">${esc(r.critico || '—')}</td>
+    </tr>`;
+  }).join('');
+
+  const checklist = CHECKLIST.map((c,i)=>{
+    const on = !!j.checklist[i];
+    return `<label class="check-item ${on?'on':''}">
+      <input type="checkbox" ${on?'checked':''} onchange="toggleChecklist(${i},this.checked);this.closest('label').classList.toggle('on',this.checked)">
+      <span>${esc(c)}</span>
+    </label>`;
+  }).join('');
+
+  return `<section class="front" data-idx="resumen">
+    <div class="panel">
+      <h2>Resumen de jornada · múltiples frentes</h2>
+      <div class="tbl-wrap">
+        <table class="tbl">
+          <thead><tr>
+            <th>Frente</th><th>Hora</th><th>Contratista</th><th>Interventoría</th>
+            <th>Bitácora</th><th>Cronograma</th><th>Actividad principal</th><th>Hallazgo crítico</th>
+          </tr></thead>
+          <tbody>${filas}</tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="panel">
+      <h2>Lista de chequeo rápida antes de salir del frente</h2>
+      <div class="check-list">${checklist}</div>
+      <div class="note">Marca cada punto; si falta uno, el CP pierde fuerza.</div>
+    </div>
+
+    <div class="panel">
+      <h2>Observaciones generales de la jornada</h2>
+      <textarea style="min-height:110px" oninput="updJ('obsGenerales',this.value)"
+        placeholder="Conclusiones de la jornada, compromisos, requerimientos a la Interventoría...">${esc(j.obsGenerales)}</textarea>
+    </div>
+  </section>`;
+}
+
+/* =========================================================
+   ARRANQUE
+   ========================================================= */
+function init(){
+  initDB();
+  render();
+}
+init();
+</script>
+</body>
+</html>
