@@ -9,20 +9,9 @@
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
 <style>
 :root{
-  /* ---------- Tokens · sistema visual ---------- */
-  --bg:#FAF9F5;            /* fondo exterior crema */
-  --panel:#FFFFFF;
-  --ink:#1F1F24;           /* texto principal carbón */
-  --muted:#6E717A;         /* texto secundario */
-  --muted-2:#8E929B;
-  --line:#EFEFF2;
-  --surface:#F4F4F6;       /* superficie neutra (buscador, botones) */
-  --brand:#FBD437;         /* amarillo primario */
-  --brand-strong:#F5C400;  /* ámbar acento */
-  --brand-soft:#FFF3B8;    /* amarillo pastel */
-  --brand-soft-2:#FEF4C5;
-  --accent:#8A6A00;        /* ámbar legible para texto */
-  --accent2:#F5C400;
+  --bg:#FAF9F5; --panel:#FFFFFF; --ink:#1F1F24; --muted:#6E717A; --muted-2:#8E929B;
+  --line:#EFEFF2; --surface:#F4F4F6; --brand:#FBD437; --brand-strong:#F5C400;
+  --brand-soft:#FFF3B8; --brand-soft-2:#FEF4C5; --accent:#8A6A00; --accent2:#F5C400;
   --ok:#1E8449; --warn:#8A6A00; --bad:#C8102E;
   --r-card:18px; --r-ctrl:12px; --r-pill:9999px;
   --shadow-card:0 6px 18px rgba(31,31,36,.08);
@@ -95,11 +84,15 @@ button.danger:hover{background:#FDEEF0;border-color:var(--bad)}
 /* ---------- Formularios ---------- */
 .grid3{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px}
 .grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:12px}
+/* Fix #1: evitar desbordes de inputs (fecha, hora) dentro de la grilla */
+.grid3 > *, .grid2 > *{min-width:0}
 label{display:flex;flex-direction:column;gap:5px;font-size:11px;color:var(--muted);
-  font-weight:600;letter-spacing:.2px}
+  font-weight:600;letter-spacing:.2px;min-width:0}
+label > input, label > select, label > textarea{max-width:100%;min-width:0}
 label.inline{flex-direction:row;align-items:center;gap:8px;font-weight:500;color:var(--ink);font-size:13px}
 input,select,textarea{font:inherit;font-weight:400;color:var(--ink);border:1px solid #E6E6EA;
-  border-radius:var(--r-ctrl);padding:9px 12px;background:#fff;width:100%;transition:.15s}
+  border-radius:var(--r-ctrl);padding:9px 12px;background:#fff;width:100%;transition:.15s;
+  min-width:0;max-width:100%}
 input::placeholder,textarea::placeholder{color:var(--muted-2)}
 input:focus,select:focus,textarea:focus{outline:none;border-color:var(--brand-strong);
   box-shadow:0 0 0 3px rgba(251,212,55,.30)}
@@ -107,6 +100,21 @@ input[readonly]{background:var(--surface);color:#55585F}
 input:disabled,select:disabled,textarea:disabled{background:#F7F7F9;color:#A5A8AF;cursor:not-allowed}
 textarea{min-height:64px;resize:vertical;font-size:13px;line-height:1.5}
 input[type=checkbox]{width:auto;transform:scale(1.2);cursor:pointer;accent-color:var(--brand-strong)}
+/* Fix #1b: inputs nativos de fecha/hora tienden a tener un ancho mínimo en iOS */
+input[type="date"],input[type="time"]{min-width:0;width:100%}
+
+/* Fix #5: fila de input + botón (GPS, Clima, Hora OK) */
+.input-row{display:flex;gap:6px;align-items:stretch;min-width:0}
+.input-row > input{flex:1 1 auto;min-width:0}
+.input-row > button{flex:0 0 auto}
+.time-row{display:flex;gap:4px;align-items:stretch;min-width:0}
+.time-row > input[type="time"]{flex:1 1 auto;min-width:0}
+.time-row > .ok-btn{
+  flex:0 0 auto;padding:4px 8px;font-size:10px;font-weight:800;line-height:1;min-height:0;
+  border-radius:8px;border:1px solid var(--brand);background:var(--brand-soft);color:var(--accent);
+  letter-spacing:.02em;
+}
+.time-row > .ok-btn:hover{background:var(--brand);border-color:var(--brand-strong);color:var(--ink)}
 
 /* ---------- Tablas ---------- */
 .tbl-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch;overscroll-behavior-x:contain;
@@ -167,11 +175,30 @@ table.tbl tr.presente:hover{background:#FFF7D6}
 .metric b{display:block;font-size:15px;font-weight:800;line-height:1.2}
 .metric small{display:block;font-size:10px;color:#6B5200;margin-top:2px;font-weight:600;letter-spacing:.02em}
 .metric .ico{font-size:16px;line-height:1;display:block;margin-bottom:4px}
-.clima-tbl td:first-child{color:var(--muted);width:58%}
-.clima-tbl td:last-child{font-weight:600;text-align:right}
-.clima-tbl{min-width:0}
+
+/* Fix #3: tabla del clima legible en móvil, sin scroll horizontal */
+table.tbl.clima-tbl{
+  min-width:0;width:100%;table-layout:fixed;
+}
+.clima-tbl td{
+  padding:7px 10px;
+  word-break:break-word;
+  overflow-wrap:anywhere;
+  white-space:normal;
+  line-height:1.35;
+}
+.clima-tbl td:first-child{color:var(--muted);width:55%;font-size:11.5px}
+.clima-tbl td:last-child{font-weight:600;text-align:right;width:45%}
 .clima-src{font-size:10.5px;color:var(--muted-2);margin-top:8px}
 .clima-src a{color:var(--accent);font-weight:600}
+
+/* ---------- Resumen: profesionales ---------- */
+.res-prof{font-size:11.5px;line-height:1.35;padding:4px 0;border-bottom:1px dashed var(--line)}
+.res-prof:last-child{border-bottom:none;padding-bottom:0}
+.res-prof b{font-weight:700;font-size:12px;display:block;color:var(--ink)}
+.res-prof span{color:var(--muted)}
+table.tbl.res-tbl{min-width:0;font-size:12px}
+table.tbl.res-tbl td{vertical-align:top;padding:8px;word-break:break-word}
 
 /* ---------- Proyectos ---------- */
 .project-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:14px;margin-top:16px}
@@ -209,7 +236,6 @@ table.tbl tr.presente:hover{background:#FFF7D6}
   box-shadow:0 8px 18px rgba(251,212,55,.40)}
 .sign-actions .save:hover{background:var(--brand-strong);border-color:var(--brand-strong)}
 
-/* ---------- Barra inferior móvil ---------- */
 .mobile-bottom-nav{display:none}
 
 /* ---------- Toast ---------- */
@@ -255,9 +281,55 @@ table.tbl tr.presente:hover{background:#FFF7D6}
   input,select,textarea{font-size:16px;min-height:46px;padding:10px 12px}
   textarea{min-height:92px}
   button{min-height:44px}
+  /* OK button dentro de .time-row debe conservar su tamaño natural */
+  .time-row > .ok-btn{min-height:46px;padding:8px 10px;font-size:11px}
+  .time-row > input[type="time"]{min-height:46px}
+  .input-row > button{min-height:46px}
+
   .clima-metrics{grid-template-columns:repeat(2,1fr)}
   .chips{gap:8px}.chip{padding:10px 14px}
   .tbl-wrap{border-radius:12px}
+
+  /* Fix #3b: tabla del clima en móvil más compacta */
+  table.tbl.clima-tbl{font-size:11.5px}
+  .clima-tbl td{padding:6px 6px;line-height:1.35}
+  .clima-tbl td:first-child{width:52%;font-size:11px}
+  .clima-tbl td:last-child{width:48%;font-size:11.5px}
+
+  /* Fix #4b: apilar la tabla de profesionales del resumen */
+  table.tbl.res-tbl{min-width:0;font-size:12px}
+  table.tbl.res-tbl thead{display:none}
+  table.tbl.res-tbl,
+  table.tbl.res-tbl tbody,
+  table.tbl.res-tbl tr,
+  table.tbl.res-tbl td{display:block;width:100%}
+  table.tbl.res-tbl tbody tr{
+    border:1px solid var(--line);
+    border-radius:12px;
+    margin-bottom:10px;
+    padding:10px 12px;
+    background:#fff;
+  }
+  table.tbl.res-tbl td{
+    border:none;
+    padding:6px 0;
+  }
+  table.tbl.res-tbl td:not(:last-child){
+    border-bottom:1px dashed #EEE;
+    padding-bottom:8px;
+    margin-bottom:6px;
+  }
+  table.tbl.res-tbl td::before{
+    content:attr(data-label);
+    display:block;
+    font-size:9.5px;
+    font-weight:700;
+    color:var(--muted);
+    text-transform:uppercase;
+    letter-spacing:.06em;
+    margin-bottom:3px;
+  }
+
   .mobile-bottom-nav{
     position:fixed;z-index:70;left:0;right:0;bottom:0;display:flex;gap:6px;overflow-x:auto;
     padding:8px 8px calc(8px + env(safe-area-inset-bottom));background:rgba(255,255,255,.97);
@@ -276,7 +348,6 @@ table.tbl tr.presente:hover{background:#FFF7D6}
   .modal-actions{flex-direction:column-reverse}
   .modal-actions button{width:100%}
 }
-
 </style>
 </head>
 <body>
@@ -412,6 +483,16 @@ function toast(msg, ms=2600){
   clearTimeout(t._t); t._t = setTimeout(()=>t.classList.remove('show'), ms);
 }
 
+/* Fix #5: sella la hora actual en el input de tiempo asociado a un botón OK */
+function stampNow(btn){
+  const row = btn.closest('.time-row') || btn.parentElement;
+  const input = row ? row.querySelector('input[type="time"]') : null;
+  if(!input) return;
+  input.value = horaActual();
+  input.dispatchEvent(new Event('input', {bubbles:true}));
+  toast('Hora registrada: ' + input.value, 1400);
+}
+
 /* =========================================================
    ESTADO / PERSISTENCIA
    ========================================================= */
@@ -503,8 +584,6 @@ function initDB(){
   migrateOldDB();
   if(!Array.isArray(DB.projects)) DB.projects = [];
 
-  /* Cada proyecto es independiente: el catálogo de profesionales vive dentro del proyecto.
-     Se migra el catálogo global antiguo al proyecto SI-SI-LP-004-2025 (o al activo). */
   const legacy = DB.catalogs;
   const legacyTieneDatos = legacy && ((legacy.contratista || []).length || (legacy.interventoria || []).length);
   if(legacyTieneDatos){
@@ -540,7 +619,6 @@ function initDB(){
       if(typeof f.obsOperativo !== 'string') f.obsOperativo = '';
       if(!Array.isArray(f.negativas)) f.negativas = [];
       if(f.climaData === undefined) f.climaData = null;
-      // Firmas: una sola casilla por defecto; las demás se agregan a demanda
       if(!Array.isArray(f.firmas) || !f.firmas.length) f.firmas = [blankFirma()];
       else{
         const vacia = v => !v.nombre && !v.tarjeta && !v.firmaImg && (!v.rol || ROLES_FIRMA.includes(v.rol));
@@ -578,10 +656,7 @@ function forzarGuardado(){
 /* =========================================================
    HELPERS DE PROYECTO / FRENTE
    ========================================================= */
-function getActiveProject(){
-  return DB.projects.find(p=>p.id===DB.activeProjectId) || null;
-}
-/* Catálogo de profesionales del proyecto activo (independiente por proyecto) */
+function getActiveProject(){ return DB.projects.find(p=>p.id===DB.activeProjectId) || null; }
 function CAT(){
   const p = getActiveProject();
   if(!p) return {contratista:[], interventoria:[]};
@@ -590,10 +665,7 @@ function CAT(){
   if(!Array.isArray(p.catalogs.interventoria)) p.catalogs.interventoria = [];
   return p.catalogs;
 }
-function J(){
-  const p = getActiveProject();
-  return p ? p.jornada : null;
-}
+function J(){ const p = getActiveProject(); return p ? p.jornada : null; }
 function getCurrentEngineer(){
   const p = getActiveProject();
   if(!p) return null;
@@ -617,6 +689,24 @@ function setFecha(v){
 }
 
 function updFront(fi, field, value){ J().fronts[fi][field] = value; save(); }
+
+/* Fix #2: actualizar el nombre del frente y reflejarlo en pestañas, cabecera y nav móvil */
+function updFrenteNombre(fi, value){
+  const j = J();
+  if(!j || !j.fronts[fi]) return;
+  j.fronts[fi].nombre = value || '';
+  const lbl = value || ('Frente ' + (fi+1));
+  const tab = document.querySelector(`.tab[data-tab="${fi}"]`);
+  if(tab) tab.textContent = lbl;
+  const section = document.querySelector(`.front[data-idx="${fi}"]`);
+  if(section){
+    const firstPanel = section.querySelector('.panel');
+    const badge = firstPanel ? firstPanel.querySelector('.badge.alt') : null;
+    if(badge) badge.textContent = lbl;
+  }
+  renderMobileNav();
+  save();
+}
 
 function updSub(fi, group, key, field, value){
   const f = J().fronts[fi];
@@ -649,7 +739,6 @@ function toggleCritica(fi, valor, checked){
 
 function toggleChecklist(i, checked){ J().checklist[i] = checked; save(); }
 
-/* --- GPS --- */
 function gpsInto(fi, field){
   if(!navigator.geolocation){toast('Este dispositivo no ofrece ubicación GPS');return;}
   toast('Solicitando ubicación…');
@@ -660,15 +749,12 @@ function gpsInto(fi, field){
   {enableHighAccuracy:true,timeout:20000,maximumAge:0});
 }
 
-/* --- Personal --- */
 function getPersona(tipo, id){
   return (CAT()[tipo] || []).find(p => p.id === id) || {nombre:'(no acreditado)', tarjetaProfesional:'', cargo:''};
 }
-
 function esCargoSST(cargo){
   return /coordinador.*hseq|coordinador.*sst|profesional sst|tecn[oó]logo sst|tecnico hseq/i.test(cargo||'');
 }
-
 function togglePresente(fi, tipo, id, checked){
   const f = J().fronts[fi];
   f[tipo][id] = f[tipo][id] || {};
@@ -683,14 +769,12 @@ function togglePresente(fi, tipo, id, checked){
   }
   save(); render();
 }
-
 function updPersona(fi, tipo, id, field, value){
   const f = J().fronts[fi];
   f[tipo][id] = f[tipo][id] || {presente:true};
   f[tipo][id][field] = value;
   save();
 }
-
 function updCat(tipo, id, field, value){
   const p = CAT()[tipo].find(x => x.id === id);
   if(p){ p[field] = value; save(); }
@@ -722,7 +806,6 @@ function modalPersona(fi, tipo){
   cambiaTipo();
   setTimeout(()=>document.getElementById('mNombre').focus(), 60);
 }
-
 function guardarPersona(fi, tipo){
   const nombre = document.getElementById('mNombre').value.trim();
   const tarjeta = document.getElementById('mCedula').value.trim();
@@ -736,7 +819,6 @@ function guardarPersona(fi, tipo){
   closeModal(); save(); render();
   toast('Persona agregada al catálogo');
 }
-
 function borrarDelCatalogo(tipo, id){
   if(!confirm('¿Eliminar esta persona del catálogo de este proyecto? No afectará a los demás proyectos.')) return;
   const c = CAT();
@@ -744,7 +826,6 @@ function borrarDelCatalogo(tipo, id){
   save(); render();
   if($('#modal').classList.contains('open')) modalCatalogo(tipo);
 }
-
 function modalCatalogo(tipo){
   const cat = CAT()[tipo] || [];
   const filas = cat.length ? cat.map(p=>`
@@ -762,14 +843,12 @@ function modalCatalogo(tipo){
   `);
 }
 
-/* --- Frentes --- */
 function addFront(){
   const j = J();
   j.fronts.push(newFront(j.fronts.length + 1));
   activeTab = j.fronts.length - 1;
   save(); render(); toast('Frente agregado');
 }
-
 function delFront(fi){
   const j = J();
   if(j.fronts.length === 1){ alert('Debe existir al menos un frente.'); return; }
@@ -779,7 +858,6 @@ function delFront(fi){
   save(); render();
 }
 
-/* --- Fotos --- */
 function compressImage(file, maxW=640, q=0.5){
   return new Promise((res, rej)=>{
     const img = new Image();
@@ -797,7 +875,6 @@ function compressImage(file, maxW=640, q=0.5){
     img.src = url;
   });
 }
-
 async function setFoto(fi, ri, input){
   const file = input.files && input.files[0];
   if(!file) return;
@@ -813,9 +890,6 @@ async function setFoto(fi, ri, input){
   }catch(e){ alert('No se pudo procesar la imagen.'); }
 }
 
-/* =========================================================
-   MODAL
-   ========================================================= */
 function showModal(html){
   $('#modalBox').className = 'modal-box';
   $('#modalBox').innerHTML = html;
@@ -829,7 +903,7 @@ function closeModal(){
 }
 
 /* =========================================================
-   FIRMA DIGITAL (canvas)
+   FIRMA DIGITAL
    ========================================================= */
 let signFi = -1, signRi = -1, signCanvas = null, signCtx = null;
 
@@ -903,7 +977,6 @@ function openSignature(fi, ri){
     canvas.addEventListener('touchend', end);
   });
 }
-
 function saveSignature(){
   if(!signCanvas || signFi < 0){ closeModal(); return; }
   const dataUrl = signCanvas.toDataURL('image/jpeg', 0.85);
@@ -912,7 +985,6 @@ function saveSignature(){
   f.firmas[signRi].firma = 'Firmado';
   if(!f.firmas[signRi].hora) f.firmas[signRi].hora = horaActual();
   save();
-  const fi = signFi, ri = signRi;
   closeModal();
   render();
   toast('Firma guardada');
@@ -921,25 +993,13 @@ function saveSignature(){
 /* =========================================================
    PROYECTOS
    ========================================================= */
-function openProject(id){
-  DB.activeProjectId = id;
-  activeTab = 0;
-  save(); render();
-}
-
-function backToProjects(){
-  DB.activeProjectId = null;
-  save(); render();
-}
+function openProject(id){ DB.activeProjectId = id; activeTab = 0; save(); render(); }
+function backToProjects(){ DB.activeProjectId = null; save(); render(); }
 
 function editProject(id){
   const editing = id ? DB.projects.find(p=>p.id===id) : null;
-  const draft = editing
-    ? JSON.parse(JSON.stringify(editing))
-    : newProject();
-
+  const draft = editing ? JSON.parse(JSON.stringify(editing)) : newProject();
   window._projDraft = draft;
-
   showModal(`
     <h3>${editing ? 'Editar' : 'Nuevo'} proyecto</h3>
     <label>Número de proceso<input id="pNum" value="${esc(draft.numeroProceso)}" placeholder="Ej: SI-SI-LP-004-2025"></label>
@@ -955,7 +1015,6 @@ function editProject(id){
   `);
   renderEngList();
 }
-
 function renderEngList(){
   const draft = window._projDraft;
   const list = document.getElementById('engList');
@@ -969,26 +1028,21 @@ function renderEngList(){
     </div>
   `).join('');
 }
-
 function addEngRow(){
   window._projDraft.ingenierosVtc.push({id: uid(), nombre:'', cargo:'', tarjeta:''});
   renderEngList();
 }
-
 function saveProject(id){
   const draft = window._projDraft;
   draft.numeroProceso = document.getElementById('pNum').value.trim();
   draft.contratista   = document.getElementById('pCont').value.trim();
   draft.interventoria = document.getElementById('pInt').value.trim();
   draft.ingenierosVtc = draft.ingenierosVtc.filter(e=>e.nombre.trim());
-
   if(!draft.numeroProceso){ alert('El número de proceso es obligatorio.'); return; }
   if(!draft.ingenierosVtc.length) draft.ingenierosVtc.push(Object.assign({id: uid()}, DEFAULT_ING));
-
   if(id){
     const idx = DB.projects.findIndex(p=>p.id===id);
     if(idx > -1){
-      // Preserve jornada & history
       draft.jornada = DB.projects[idx].jornada;
       draft.history = DB.projects[idx].history;
       DB.projects[idx] = draft;
@@ -1001,7 +1055,6 @@ function saveProject(id){
   closeModal(); save(); render();
   toast(id ? 'Proyecto actualizado' : 'Proyecto creado');
 }
-
 function deleteProject(id){
   if(!confirm('¿Eliminar este proyecto y todo su contenido? No se puede deshacer.')) return;
   DB.projects = DB.projects.filter(p=>p.id!==id);
@@ -1025,7 +1078,6 @@ function archivarActual(){
   proj.history.unshift(JSON.parse(JSON.stringify(j)));
   if(proj.history.length > 40) proj.history.pop();
 }
-
 function nuevaJornada(repetirEstructura){
   const proj = getActiveProject();
   if(!proj) return;
@@ -1033,13 +1085,11 @@ function nuevaJornada(repetirEstructura){
     ? 'Se creará una jornada nueva copiando los frentes y el personal marcado presente (sin horas ni actividades). ¿Continuar?'
     : 'La jornada actual se archivará en el historial y se iniciará una nueva. ¿Continuar?';
   if(!confirm(msg)) return;
-
   archivarActual();
   const prev = proj.jornada;
   const nueva = blankJornada();
   nueva.engineId = prev.engineId;
   nueva.acompanantes = prev.acompanantes || '';
-
   if(repetirEstructura){
     nueva.fronts = prev.fronts.map((f, i)=>{
       const nf = newFront(i+1);
@@ -1056,13 +1106,11 @@ function nuevaJornada(repetirEstructura){
     });
     if(!nueva.fronts.length) nueva.fronts = [newFront(1)];
   }
-
   proj.jornada = nueva;
   activeTab = 0;
   save(); render();
   toast(repetirEstructura ? 'Jornada creada con la misma estructura' : 'Nueva jornada iniciada');
 }
-
 function showHistory(){
   const proj = getActiveProject();
   if(!proj) return;
@@ -1083,7 +1131,6 @@ function showHistory(){
   showModal(`<h3>Historial del proyecto</h3>${body}
     <div class="modal-actions"><button onclick="closeModal()">Cerrar</button></div>`);
 }
-
 function loadHist(i){
   const proj = getActiveProject();
   if(!proj) return;
@@ -1095,7 +1142,6 @@ function loadHist(i){
   closeModal(); save(); render();
   toast('Jornada cargada');
 }
-
 function delHist(i){
   const proj = getActiveProject();
   if(!proj) return;
@@ -1108,11 +1154,7 @@ function delHist(i){
    EXPORTAR / IMPORTAR
    ========================================================= */
 function exportJSON(){
-  const data = {
-    version: '2.1',
-    exportedAt: new Date().toISOString(),
-    projects: DB.projects
-  };
+  const data = { version: '2.1', exportedAt: new Date().toISOString(), projects: DB.projects };
   const blob = new Blob([JSON.stringify(data, null, 2)], {type:'application/json'});
   const a = document.createElement('a');
   a.href = URL.createObjectURL(blob);
@@ -1121,7 +1163,6 @@ function exportJSON(){
   URL.revokeObjectURL(a.href);
   toast('Respaldo JSON exportado');
 }
-
 function importJSON(input){
   const file = input.files && input.files[0];
   if(!file) return;
@@ -1138,9 +1179,7 @@ function importJSON(input){
       activeTab = 0;
       save(); render();
       toast('Datos importados correctamente');
-    }catch(e){
-      alert('El archivo no es un respaldo VTC válido.');
-    }
+    }catch(e){ alert('El archivo no es un respaldo VTC válido.'); }
   };
   reader.readAsText(file);
   input.value = '';
@@ -1157,7 +1196,6 @@ function render(){
     $('#mobileBottomNav').innerHTML = '';
     return;
   }
-
   const j = proj.jornada;
   if(typeof activeTab === 'number' && activeTab >= j.fronts.length) activeTab = 0;
 
@@ -1180,7 +1218,6 @@ function updateTopBar(){
   const title = $('#brandTitle');
   const sub = $('#brandSub');
   const actions = $('#topActions');
-
   if(proj){
     title.textContent = proj.numeroProceso || 'Proyecto';
     sub.textContent = proj.contratista || '—';
@@ -1226,9 +1263,6 @@ function renderMobileNav(){
    <button onclick="addFront()">＋ Frente</button>`;
 }
 
-/* ---------- Nota: se eliminó el ocultamiento de barras al hacer scroll
-   porque provocaba saltos y desacomodo del contenido en móvil. ---------- */
-
 /* =========================================================
    SELECTOR DE PROYECTOS
    ========================================================= */
@@ -1249,7 +1283,6 @@ function renderProjectSelector(){
       </div>
     </div>
   `).join('');
-
   return `
     <div class="panel" style="max-width:1000px;margin:20px auto">
       <h2>Proyectos
@@ -1304,7 +1337,7 @@ function renderJornada(proj){
 }
 
 /* =========================================================
-   CLIMA · consulta meteorológica del área exacta del frente
+   CLIMA
    ========================================================= */
 const WMO = {
   0:['Despejado','☀️'], 1:['Mayormente despejado','🌤️'], 2:['Parcialmente nublado','⛅'],
@@ -1360,17 +1393,13 @@ function geoPos(){
     );
   });
 }
-
 async function fetchClima(lat, lon){
   const qs = new URLSearchParams({
-    latitude: lat,
-    longitude: lon,
+    latitude: lat, longitude: lon,
     current: 'temperature_2m,relative_humidity_2m,apparent_temperature,is_day,precipitation,weather_code,cloud_cover,pressure_msl,wind_speed_10m,wind_direction_10m,wind_gusts_10m',
     hourly: 'precipitation_probability,uv_index,visibility',
     daily: 'temperature_2m_max,temperature_2m_min,precipitation_probability_max,sunrise,sunset,uv_index_max',
-    timezone: 'auto',
-    forecast_days: '2',
-    wind_speed_unit: 'kmh'
+    timezone: 'auto', forecast_days: '2', wind_speed_unit: 'kmh'
   });
   const res = await fetch('https://api.open-meteo.com/v1/forecast?' + qs.toString(), {cache:'no-store'});
   if(!res.ok) throw new Error('Open-Meteo HTTP ' + res.status);
@@ -1380,7 +1409,6 @@ async function fetchClima(lat, lon){
   let idx = (hourly.time || []).findIndex(t => String(t).slice(0, 13) === hora);
   if(idx < 0) idx = 0;
   const pick = (arr, i) => (Array.isArray(arr) && arr[i] !== undefined && arr[i] !== null) ? arr[i] : null;
-
   let area = '';
   try{
     const gr = await fetch(`https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${lat}&longitude=${lon}&localityLanguage=es`, {cache:'no-store'});
@@ -1388,36 +1416,26 @@ async function fetchClima(lat, lon){
       const g = await gr.json();
       area = [g.locality || g.city, g.principalSubdivision, g.countryName].filter(Boolean).join(', ');
     }
-  }catch(_e){ /* el nombre del área es opcional */ }
-
+  }catch(_e){}
   return {
     lat, lon, area,
     updatedAt: new Date().toISOString(),
-    code: cur.weather_code,
-    temp: cur.temperature_2m,
-    feels: cur.apparent_temperature,
-    humidity: cur.relative_humidity_2m,
-    precip: cur.precipitation,
+    code: cur.weather_code, temp: cur.temperature_2m, feels: cur.apparent_temperature,
+    humidity: cur.relative_humidity_2m, precip: cur.precipitation,
     precipProb: pick(hourly.precipitation_probability, idx) ?? pick(daily.precipitation_probability_max, 0),
-    cloud: cur.cloud_cover,
-    pressure: cur.pressure_msl,
-    wind: cur.wind_speed_10m,
-    windDir: cur.wind_direction_10m,
-    gust: cur.wind_gusts_10m,
+    cloud: cur.cloud_cover, pressure: cur.pressure_msl,
+    wind: cur.wind_speed_10m, windDir: cur.wind_direction_10m, gust: cur.wind_gusts_10m,
     uv: pick(hourly.uv_index, idx) ?? pick(daily.uv_index_max, 0),
     visibility: pick(hourly.visibility, idx),
-    max: pick(daily.temperature_2m_max, 0),
-    min: pick(daily.temperature_2m_min, 0),
+    max: pick(daily.temperature_2m_max, 0), min: pick(daily.temperature_2m_min, 0),
     sunrise: ((daily.sunrise || [])[0] || '').slice(11, 16),
     sunset: ((daily.sunset || [])[0] || '').slice(11, 16)
   };
 }
-
 async function cargarClima(){
   const fa = frenteActivo();
   if(!fa){ toast('Abra un proyecto para consultar el clima'); return; }
   const {fi, f} = fa;
-
   let pos = parseCoords(f.coordenadas);
   if(!pos){
     toast('Obteniendo ubicación del frente…', 4000);
@@ -1430,7 +1448,6 @@ async function cargarClima(){
       return;
     }
   }
-
   toast('Consultando clima del área exacta…', 5000);
   try{
     const data = await fetchClima(pos.lat, pos.lon);
@@ -1442,7 +1459,6 @@ async function cargarClima(){
     toast('No se pudo consultar el clima. Verifique la conexión a internet.');
   }
 }
-
 function renderClimaBox(){
   const fa = frenteActivo();
   if(!fa) return '';
@@ -1500,7 +1516,9 @@ function renderClimaBox(){
   </div>`;
 }
 
-/* ---------- Pestañas ---------- */
+/* =========================================================
+   TABS Y FRENTES
+   ========================================================= */
 function renderTabs(){
   const j = J();
   let h = '<div class="tabs no-print">';
@@ -1532,7 +1550,7 @@ function renderFront(fi, f){
   </section>`;
 }
 
-/* ---------- A ---------- */
+/* A. Datos generales — con fix de nombre y OK en hora de llegada */
 function renderA(fi, f){
   return `
   <div class="panel">
@@ -1542,15 +1560,24 @@ function renderA(fi, f){
       <button class="mini danger no-print" onclick="delFront(${fi})">Eliminar frente</button>
     </h2>
     <div class="grid3">
-      <label>Frente de obra<input value="${esc(f.nombre)}" oninput="updFront(${fi},'nombre',this.value)"></label>
-      <label>Dirección / abscisa<input value="${esc(f.direccion)}" oninput="updFront(${fi},'direccion',this.value)"></label>
+      <label>Frente de obra
+        <input value="${esc(f.nombre)}" oninput="updFrenteNombre(${fi},this.value)">
+      </label>
+      <label>Dirección / abscisa
+        <input value="${esc(f.direccion)}" oninput="updFront(${fi},'direccion',this.value)">
+      </label>
       <label>Coordenadas
-        <div style="display:flex;gap:6px">
+        <div class="input-row">
           <input value="${esc(f.coordenadas)}" oninput="updFront(${fi},'coordenadas',this.value)" placeholder="lat, long">
           <button type="button" class="no-print" onclick="gpsInto(${fi},'coordenadas')" title="Usar GPS">⌖ GPS</button>
         </div>
       </label>
-      <label>Hora de llegada<input type="time" value="${esc(f.horaLlegada)}" oninput="updFront(${fi},'horaLlegada',this.value)"></label>
+      <label>Hora de llegada
+        <div class="time-row">
+          <input type="time" value="${esc(f.horaLlegada)}" oninput="updFront(${fi},'horaLlegada',this.value)">
+          <button type="button" class="ok-btn no-print" onclick="stampNow(this)" title="Usar hora actual">OK</button>
+        </div>
+      </label>
       <label>¿Se permite el ingreso?
         <select onchange="updFront(${fi},'acceso',this.value)">${opts(['','Sí','No','Con restricciones'], f.acceso)}</select>
       </label>
@@ -1561,7 +1588,7 @@ function renderA(fi, f){
   </div>`;
 }
 
-/* ---------- B: Contratista (solo los profesionales registrados) ---------- */
+/* B. Contratista — con OK en horas */
 function renderB(fi, f){
   const cat = CAT().contratista;
   const presentes = cat.filter(p => f.contratista[p.id] && f.contratista[p.id].presente);
@@ -1574,7 +1601,12 @@ function renderB(fi, f){
       <td style="min-width:180px"><input value="${esc(p.nombre)}" oninput="updCat('contratista','${p.id}','nombre',this.value)"></td>
       <td style="min-width:160px"><input value="${esc(p.cargo)}" list="cargosList" oninput="updCat('contratista','${p.id}','cargo',this.value)"></td>
       <td style="width:150px"><input value="${esc(p.tarjetaProfesional||'')}" oninput="updCat('contratista','${p.id}','tarjetaProfesional',this.value)" placeholder="${esSST?'N° resolución':'N° tarjeta'}"></td>
-      <td style="width:100px"><input type="time" value="${esc(e.hora||'')}" oninput="updPersona(${fi},'contratista','${p.id}','hora',this.value)"></td>
+      <td style="width:130px">
+        <div class="time-row">
+          <input type="time" value="${esc(e.hora||'')}" oninput="updPersona(${fi},'contratista','${p.id}','hora',this.value)">
+          <button type="button" class="ok-btn no-print" onclick="stampNow(this)" title="Hora actual">OK</button>
+        </div>
+      </td>
       <td><input value="${esc(e.actividad||'')}" oninput="updPersona(${fi},'contratista','${p.id}','actividad',this.value)" placeholder="Actividad"></td>
       <td><input value="${esc(e.obs||'')}" oninput="updPersona(${fi},'contratista','${p.id}','obs',this.value)" placeholder="Obs."></td>
       <td class="no-print" style="width:36px"><button class="mini danger" onclick="togglePresente(${fi},'contratista','${p.id}',false)" title="Quitar del frente">✕</button></td>
@@ -1612,7 +1644,6 @@ function renderB(fi, f){
   </div>`;
 }
 
-/* ---------- C: Personal operativo ---------- */
 function renderOperativo(fi, f){
   const roles = ['Maestro','Oficial','Ayudante','Controladores de tráfico','Operador de maquinaria','Otro'];
   const filas = f.personalOperativo.map((e,ri)=>`
@@ -1621,7 +1652,6 @@ function renderOperativo(fi, f){
       <td style="width:120px">${esc(e.cantidad)}</td>
       <td class="no-print" style="width:36px"><button class="mini danger" onclick="delRow(${fi},'personalOperativo',${ri})">✕</button></td>
     </tr>`).join('');
-
   return `
   <div class="panel">
     <h2>C. Personal operativo de obra</h2>
@@ -1648,7 +1678,6 @@ function renderOperativo(fi, f){
     </label>
   </div>`;
 }
-
 function addOperativo(fi){
   const cargo = document.getElementById('opCargo_'+fi).value;
   const cant  = document.getElementById('opCant_'+fi).value;
@@ -1658,12 +1687,10 @@ function addOperativo(fi){
   toast('Personal operativo agregado');
 }
 
-/* ---------- D: Interventoría ---------- */
+/* D. Interventoría — con OK en horas */
 function renderC(fi, f){
   const cat = CAT().interventoria;
   const ofertados = cat.filter(p => p.ofertado);
-
-  // La tabla fija de 4 perfiles ofertados solo aplica al proceso SI-SI-LP-004-2025
   const proj = getActiveProject();
   const esProcesoSII = /SI-SI-LP-004-2025/i.test((proj && proj.numeroProceso) || '');
 
@@ -1675,9 +1702,12 @@ function renderC(fi, f){
         <input type="checkbox" ${e.presente ? 'checked' : ''}
           onchange="togglePresente(${fi},'interventoria','${p.id}',this.checked)">
       </td>
-      <td style="width:110px">
-        <input type="time" value="${esc(e.hora||'')}" ${e.presente?'':'disabled'}
-          oninput="updPersona(${fi},'interventoria','${p.id}','hora',this.value)">
+      <td style="width:130px">
+        <div class="time-row">
+          <input type="time" value="${esc(e.hora||'')}" ${e.presente?'':'disabled'}
+            oninput="updPersona(${fi},'interventoria','${p.id}','hora',this.value)">
+          ${e.presente ? `<button type="button" class="ok-btn no-print" onclick="stampNow(this)" title="Hora actual">OK</button>` : ''}
+        </div>
       </td>
       <td>
         <input value="${esc(e.justificacion||'')}" ${e.presente?'disabled':''}
@@ -1702,7 +1732,6 @@ function renderC(fi, f){
     const e = f.interventoria[id];
     if(!e || !e.presente) return false;
     const p = cat.find(x => x.id === id);
-    // En SI-SI-LP-004-2025 los 4 ofertados ya están en la tabla fija
     return esProcesoSII ? (!p || !p.ofertado) : true;
   });
 
@@ -1724,7 +1753,12 @@ function renderC(fi, f){
       <td><input value="${esc(p.nombre)}" oninput="updCat('interventoria','${id}','nombre',this.value)"></td>
       <td style="width:160px"><input value="${esc(p.cargo)}" list="cargosList" oninput="updCat('interventoria','${id}','cargo',this.value)"></td>
       <td style="width:150px"><input value="${esc(p.tarjetaProfesional||'')}" oninput="updCat('interventoria','${id}','tarjetaProfesional',this.value)" placeholder="N° tarjeta / resolución"></td>
-      <td style="width:95px"><input type="time" value="${esc(e.hora||'')}" oninput="updPersona(${fi},'interventoria','${id}','hora',this.value)"></td>
+      <td style="width:130px">
+        <div class="time-row">
+          <input type="time" value="${esc(e.hora||'')}" oninput="updPersona(${fi},'interventoria','${id}','hora',this.value)">
+          <button type="button" class="ok-btn no-print" onclick="stampNow(this)" title="Hora actual">OK</button>
+        </div>
+      </td>
       <td><input value="${esc(e.actividad||'')}" oninput="updPersona(${fi},'interventoria','${id}','actividad',this.value)"></td>
       <td><input value="${esc(e.obs||'')}" oninput="updPersona(${fi},'interventoria','${id}','obs',this.value)"></td>
       <td class="no-print" style="width:36px">
@@ -1744,9 +1778,7 @@ function renderC(fi, f){
       <span class="spacer"></span>
       <button class="mini no-print" onclick="modalCatalogo('interventoria')" title="Ver / limpiar catálogo">🗂 Catálogo</button>
     </h2>
-
     ${tablaOfertados}
-
     <h4>${esProcesoSII ? 'Otros profesionales de Interventoría' : 'Profesionales de Interventoría en obra'}</h4>
     <div class="chips">
       ${chips}
@@ -1762,7 +1794,6 @@ function renderC(fi, f){
         <tbody>${filasOtros}</tbody>
       </table>
       </div>` : '<p class="muted">Sin otros profesionales registrados.</p>'}
-
     <label style="margin-top:10px">Observaciones D
       <textarea oninput="updFront(${fi},'obsC',this.value)" placeholder="Notas sobre el personal de interventoría">${esc(f.obsC||'')}</textarea>
     </label>
@@ -1772,7 +1803,6 @@ function renderC(fi, f){
   </div>`;
 }
 
-/* ---------- E: Maquinaria ---------- */
 function renderD(fi, f){
   const filas = f.maquinaria.map((m,ri)=>`
     <tr>
@@ -1786,7 +1816,6 @@ function renderD(fi, f){
       <td><input value="${esc(m.obs)}" oninput="updRow(${fi},'maquinaria',${ri},'obs',this.value)"></td>
       <td class="no-print" style="width:36px"><button class="mini danger" onclick="delRow(${fi},'maquinaria',${ri})">✕</button></td>
     </tr>`).join('');
-
   return `
   <div class="panel">
     <h2>E. Maquinaria y equipo
@@ -1809,7 +1838,6 @@ function renderD(fi, f){
   </div>`;
 }
 
-/* ---------- F: Actividades ---------- */
 function renderE(fi, f){
   const filas = f.actividades.map((a,ri)=>`
     <tr>
@@ -1822,13 +1850,11 @@ function renderE(fi, f){
       <td><input value="${esc(a.obs)}" oninput="updRow(${fi},'actividades',${ri},'obs',this.value)"></td>
       <td class="no-print" style="width:36px"><button class="mini danger" onclick="delRow(${fi},'actividades',${ri})">✕</button></td>
     </tr>`).join('');
-
   const criticas = CRITICAS.map(c=>`
     <label class="check-item">
       <input type="checkbox" ${f.criticas.includes(c)?'checked':''} onchange="toggleCritica(${fi},'${esc(c)}',this.checked)">
       <span>${esc(c)}</span>
     </label>`).join('');
-
   return `
   <div class="panel">
     <h2>F. Actividades ejecutadas y programadas
@@ -1845,7 +1871,6 @@ function renderE(fi, f){
         <tbody>${filas}</tbody>
       </table>
     </div>` : '<p class="muted">Sin actividades registradas.</p>'}
-
     <h4>Actividades de calidad crítica observadas</h4>
     <div class="check-list">${criticas}</div>
     <label style="margin-top:10px">Otra actividad crítica
@@ -1854,12 +1879,10 @@ function renderE(fi, f){
   </div>`;
 }
 
-/* ---------- G: Verificación documental ---------- */
 function renderF(fi, f){
   const c = CAT();
   const profesionales = [...c.contratista, ...c.interventoria].filter(p=>p.nombre);
   const quienOpts = ['','No aplica',...profesionales.map(p=>`${p.nombre} · ${p.cargo||''}`)];
-
   const filas = DOCS.map(doc=>{
     const e = f.docs[doc] || {};
     return `<tr>
@@ -1872,7 +1895,6 @@ function renderF(fi, f){
            oninput="updSub(${fi},'docs','${esc(doc)}','obs',this.value)"></td>
     </tr>`;
   }).join('');
-
   return `
   <div class="panel">
     <h2>G. Verificación documental en obra</h2>
@@ -1889,7 +1911,6 @@ function renderF(fi, f){
   </div>`;
 }
 
-/* ---------- H, I, J: Tablas genéricas ---------- */
 function tablaSimple(fi, f, group, items, titulo, campo){
   const filas = items.map(it=>{
     const nombre = Array.isArray(it) ? it[0] : it;
@@ -1901,7 +1922,6 @@ function tablaSimple(fi, f, group, items, titulo, campo){
       <td><input value="${esc(e.obs)}" oninput="updSub(${fi},'${group}','${esc(nombre)}','obs',this.value)" placeholder="${esc(campo||'Observación')}"></td>
     </tr>`;
   }).join('');
-
   return `
   <div class="panel">
     <h2>${titulo}</h2>
@@ -1913,12 +1933,10 @@ function tablaSimple(fi, f, group, items, titulo, campo){
     </div>
   </div>`;
 }
-
 function renderG(fi,f){ return tablaSimple(fi,f,'calidad',CALIDAD,'H. Calidad de la ejecución','Detalle de lo verificado'); }
 function renderH(fi,f){ return tablaSimple(fi,f,'sst',SST_ITEMS,'I. Seguridad y salud en el trabajo','Observación'); }
 function renderI(fi,f){ return tablaSimple(fi,f,'ambiental',AMB_ITEMS,'J. Gestión ambiental y tránsito','Observación'); }
 
-/* ---------- J: Fotos ---------- */
 function renderJ(fi, f){
   const filas = f.fotos.map((fo,ri)=>`
     <tr>
@@ -1930,7 +1948,6 @@ function renderJ(fi, f){
       </td>
       <td class="no-print" style="width:36px"><button class="mini danger" onclick="delRow(${fi},'fotos',${ri})">✕</button></td>
     </tr>`).join('');
-
   return `
   <div class="panel">
     <h2>K. Evidencia fotográfica
@@ -1952,7 +1969,6 @@ function renderJ(fi, f){
   </div>`;
 }
 
-/* ---------- K: Hallazgos ---------- */
 function renderK(fi, f){
   const filas = f.hallazgos.map((h,ri)=>`
     <tr>
@@ -1963,7 +1979,6 @@ function renderK(fi, f){
       <td style="width:110px"><select onchange="updRow(${fi},'hallazgos',${ri},'gravedad',this.value)">${opts(['','Alta','Media','Baja'], h.gravedad)}</select></td>
       <td class="no-print" style="width:36px"><button class="mini danger" onclick="delRow(${fi},'hallazgos',${ri})">✕</button></td>
     </tr>`).join('');
-
   return `
   <div class="panel">
     <h2>L. Hallazgos y no conformidades
@@ -1985,7 +2000,6 @@ function renderK(fi, f){
   </div>`;
 }
 
-/* ---------- L: Observaciones generales ---------- */
 function renderL(fi, f){
   return `
   <div class="panel">
@@ -1995,7 +2009,7 @@ function renderL(fi, f){
   </div>`;
 }
 
-/* ---------- M: Firmas ---------- */
+/* M. Firmas — con OK en todas las horas */
 function profesionalesFrente(fi){
   const f = J().fronts[fi];
   const out = [];
@@ -2016,8 +2030,6 @@ function profesionalesFrente(fi){
 
 function renderM(fi, f){
   if(!Array.isArray(f.firmas) || !f.firmas.length) f.firmas = [blankFirma()];
-
-  // Lista de profesionales: solo los que se registraron (presentes) en este frente + ingenieros VTC
   const todos = profesionalesFrente(fi);
   const cargosUnicos = [...new Set(todos.map(p=>p.cargo))];
 
@@ -2038,7 +2050,12 @@ function renderM(fi, f){
           ? `<img class="thumb sign" src="${fm.firmaImg}" onclick="openSignature(${fi},${ri})" alt="firma">`
           : `<button class="mini no-print" onclick="openSignature(${fi},${ri})">✍ Firmar</button>`}
       </td>
-      <td style="width:100px"><input type="time" value="${esc(fm.hora)}" oninput="updRow(${fi},'firmas',${ri},'hora',this.value)"></td>
+      <td style="width:130px">
+        <div class="time-row">
+          <input type="time" value="${esc(fm.hora)}" oninput="updRow(${fi},'firmas',${ri},'hora',this.value)">
+          <button type="button" class="ok-btn no-print" onclick="stampNow(this)" title="Hora actual">OK</button>
+        </div>
+      </td>
       <td class="no-print" style="width:36px"><button class="mini danger" onclick="delRow(${fi},'firmas',${ri})" title="Quitar firma">✕</button></td>
     </tr>`;
   }).join('');
@@ -2050,7 +2067,12 @@ function renderM(fi, f){
       <td><input value="${esc(n.cargo||'')}" placeholder="Cargo / entidad" oninput="updRow(${fi},'negativas',${ri},'cargo',this.value)"></td>
       <td><input value="${esc(n.tarjeta||'')}" placeholder="Tarjeta / cédula" oninput="updRow(${fi},'negativas',${ri},'tarjeta',this.value)"></td>
       <td style="min-width:200px"><input value="${esc(n.motivo||'')}" placeholder="Motivo textual de la negativa" oninput="updRow(${fi},'negativas',${ri},'motivo',this.value)"></td>
-      <td style="width:100px"><input type="time" value="${esc(n.hora||'')}" oninput="updRow(${fi},'negativas',${ri},'hora',this.value)"></td>
+      <td style="width:130px">
+        <div class="time-row">
+          <input type="time" value="${esc(n.hora||'')}" oninput="updRow(${fi},'negativas',${ri},'hora',this.value)">
+          <button type="button" class="ok-btn no-print" onclick="stampNow(this)" title="Hora actual">OK</button>
+        </div>
+      </td>
       <td class="no-print" style="width:36px"><button class="mini danger" onclick="delRow(${fi},'negativas',${ri})" title="Quitar">✕</button></td>
     </tr>`).join('');
 
@@ -2081,7 +2103,10 @@ function renderM(fi, f){
     <h4>Hora de salida del frente</h4>
     <div class="grid3">
       <label>Hora de salida (último dato de la visita)
-        <input type="time" value="${esc(f.horaSalida)}" oninput="updFront(${fi},'horaSalida',this.value)">
+        <div class="time-row">
+          <input type="time" value="${esc(f.horaSalida)}" oninput="updFront(${fi},'horaSalida',this.value)">
+          <button type="button" class="ok-btn no-print" onclick="stampNow(this)" title="Hora actual">OK</button>
+        </div>
       </label>
     </div>
     <div class="note">Registre la hora de salida al terminar: es el último dato que se diligencia antes de cerrar la visita.</div>
@@ -2099,7 +2124,9 @@ function setFirmaCargo(fi, ri, cargo){
   save(); render();
 }
 
-/* ---------- Resumen ---------- */
+/* =========================================================
+   RESUMEN — Fix #4: nombres y tarjetas de cada profesional
+   ========================================================= */
 function resumenFila(f){
   const contratista = Object.keys(f.contratista).filter(id => f.contratista[id].presente).length;
   const interv = Object.keys(f.interventoria).filter(id => f.interventoria[id].presente).length;
@@ -2108,6 +2135,23 @@ function resumenFila(f){
   const act = (f.actividades.find(a => a.ejecucion === 'Sí') || f.actividades[0] || {}).actividad || '—';
   const critico = (f.hallazgos.find(h => h.gravedad === 'Alta') || {}).hallazgo || '';
   return {contratista, interv, bitacora, cronograma, act, critico};
+}
+
+function listaProfesionales(f, tipo){
+  const c = CAT()[tipo] || [];
+  const presentes = c.filter(p => f[tipo][p.id] && f[tipo][p.id].presente);
+  if(!presentes.length) return '<span class="muted">—</span>';
+  return presentes.map(p =>
+    `<div class="res-prof"><b>${esc(p.nombre || '—')}</b><span>${esc(p.cargo || '—')}${p.tarjetaProfesional ? ' · ' + esc(p.tarjetaProfesional) : ''}</span></div>`
+  ).join('');
+}
+
+function listaVTC(){
+  const p = getActiveProject();
+  if(!p) return '';
+  return p.ingenierosVtc.map(e =>
+    `<div class="res-prof"><b>${esc(e.nombre || '—')}</b><span>${esc(e.cargo || '—')}${e.tarjeta ? ' · ' + esc(e.tarjeta) : ''}</span></div>`
+  ).join('');
 }
 
 function renderResumen(){
@@ -2135,6 +2179,14 @@ function renderResumen(){
     </label>`;
   }).join('');
 
+  const filasProf = j.fronts.map((f,i)=>`
+    <tr>
+      <td data-label="Frente"><b>${esc(f.nombre || 'Frente '+(i+1))}</b></td>
+      <td data-label="Contratista">${listaProfesionales(f,'contratista')}</td>
+      <td data-label="Interventoría">${listaProfesionales(f,'interventoria')}</td>
+      <td data-label="Ingenieros VTC">${listaVTC()}</td>
+    </tr>`).join('');
+
   return `<section class="front" data-idx="resumen">
     <div class="panel">
       <h2>Resumen de jornada · múltiples frentes</h2>
@@ -2145,6 +2197,22 @@ function renderResumen(){
             <th>Bitácora</th><th>Cronograma</th><th>Actividad principal</th><th>Hallazgo crítico</th>
           </tr></thead>
           <tbody>${filas}</tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="panel">
+      <h2>Profesionales que participaron por frente</h2>
+      <p class="muted" style="margin-top:0">Nombre, cargo y número de tarjeta profesional / resolución de cada profesional presente en cada frente.</p>
+      <div class="tbl-wrap">
+        <table class="tbl res-tbl">
+          <thead><tr>
+            <th>Frente</th>
+            <th>Contratista</th>
+            <th>Interventoría</th>
+            <th>Ingenieros VTC</th>
+          </tr></thead>
+          <tbody>${filasProf}</tbody>
         </table>
       </div>
     </div>
